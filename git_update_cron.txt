@@ -1,0 +1,4 @@
+0 * * * * python3 /git_update.py
+0 * * * * /path/git_update.sh
+
+
