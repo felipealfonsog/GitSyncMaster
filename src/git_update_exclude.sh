@@ -6,16 +6,16 @@ main_directory="/path"
 exclude_flag=true
 # Directories to exclude from updating
 exclude_directories=(
-    "/path/dir1"
-    "/path/dir2"
+    "/home/path/dir1"
+    "/home/path/dir2"
     # Add more directories as needed
 )
 
 # Function to check if a directory is in the exclusion list
 is_excluded() {
-    local dir_to_check="$1"
+    local dir_to_check=$(realpath -m "$1")  # Get the full path of the directory to check
     for excluded_dir in "${exclude_directories[@]}"; do
-        if [[ "$dir_to_check" == "$excluded_dir" ]]; then
+        if [[ "$dir_to_check" == "$(realpath -m "$excluded_dir")" ]]; then
             return 0
         fi
     done
@@ -36,4 +36,3 @@ for dir in "$main_directory"/*/; do
         cd - || exit
     fi
 done
-

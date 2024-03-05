@@ -1,11 +1,12 @@
 import os
 
 main_directory = "/path"
-# True to exclude
+# Flag indicating whether to exclude directories. True to exclude.
 exclude_flag = True
+# Directories to exclude from updating
 exclude_directories = [
-    "/path/dir1",
-    "/path/dir2",
+    "/home/path/dir1",
+    "/home/path/dir2",
     # Add more directories as needed
 ]
 
@@ -27,4 +28,3 @@ def update_git_repositories():
 
 if __name__ == "__main__":
     update_git_repositories()
-
