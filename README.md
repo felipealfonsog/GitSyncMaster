@@ -41,7 +41,7 @@ GitSyncMaster is a versatile tool designed to simplify the process of updating m
      Ensure to replace `/path/to/git_update.sh` with the actual path to the Bash script.
 
 
-### Usage Instructions (with Exclusions):
+#### Usage Instructions (with Exclusions):
 
 1. **Bash Script (git_update_exclude.sh):**
    - Ensure the script has execute permissions:
