@@ -3,7 +3,7 @@
 GitSyncMaster* is a versatile tool designed to simplify the process of updating multiple Git repositories within a directory structure. It automates the Git updating process (git pull) for enhanced efficiency in managing your projects.
 
 
-![Version](https://img.shields.io/github/release/felipealfonsog/GitSyncMaster.svg?style=flat&color=blue)
+![Version](https://img.shields.io/github/release/felipealfonsog/GitSyncMaster.svg?style=flat&color=red)
 ![Main Language](https://img.shields.io/github/languages/top/felipealfonsog/GitSyncMaster.svg?style=flat&color=blue)
 [![Open Source? Yes!](https://badgen.net/badge/Open%20Source%20%3F/Yes%21/blue?icon=github)](https://github.com/Naereen/badges/)
 
