@@ -106,9 +106,9 @@ GitSyncMaster* is a versatile tool designed to simplify the process of updating 
 
 #### On macOS usually the directory can be like this:
 
-    ```
-    main_directory="/Volumes/Macintosh\ HD/Users/user/Documents/Development"
-    ```
+```
+ main_directory="/Volumes/Macintosh\ HD/Users/user/Documents/Development"
+```
 
 #### 🤝 Support and Contributions
 
