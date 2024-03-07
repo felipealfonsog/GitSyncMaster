@@ -17,8 +17,13 @@ update_github_repositories() {
             if [ "$2" = true ] || [[ ! "$dir" =~ -aur$ ]]; then
                 echo "Updating repository in $dir"
                 cd "$dir" || exit
-                git pull
+                result=$(git pull)  # Capture the result of the git pull operation
                 cd - || exit
+                if [ $? -eq 0 ]; then  # Check if the git pull operation was successful
+                    echo "Repository updated successfully."
+                else
+                    echo "Error updating repository."
+                fi
             fi
         fi
     done
@@ -35,7 +40,7 @@ main() {
         echo "You need to be inside a directory with GitHub repositories to update them."
         return
     fi
-    read -p "Do you want to update repositories here? (Press Enter for Yes, No for cancel, default is Yes): " main_directory
+    read -p "Do you want to update repositories here? (Press Enter for No, Y for Yes default is No): " main_directory
     if [[ "$main_directory" == '' || "$main_directory" =~ [Yy] ]]; then
         read -p "Do you want to abort the process? (Press Enter for No, Y for Yes default is No): " abort_choice
         if [[ "$abort_choice" =~ [Yy] ]]; then
