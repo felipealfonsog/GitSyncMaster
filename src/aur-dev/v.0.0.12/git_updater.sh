@@ -10,10 +10,8 @@ welcome() {
 
 update_github_repositories() {
     echo -e "\nUpdating GitHub repositories...\n"
-    found_repos=false
     for dir in "$1"/*/; do
         if [ -d "$dir/.git" ]; then
-            found_repos=true
             if [ "$2" = true ] || [[ ! "$dir" =~ -aur$ ]]; then
                 echo "Updating repository in $dir"
                 cd "$dir" || exit
@@ -22,10 +20,6 @@ update_github_repositories() {
             fi
         fi
     done
-    if [ "$found_repos" = false ]; then
-        echo "No GitHub repositories found in the current directory or its subdirectories. Exiting."
-        exit
-    fi
 }
 
 main() {
