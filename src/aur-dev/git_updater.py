@@ -2,7 +2,7 @@ import os
 
 def welcome():
     print("Welcome to GitHub Repository Updater!")
-    print("This script will update all GitHub repositories within the specified directory.")
+    print("This script will update all GitHub repositories within the current directory or its subdirectories.")
 
 def update_github_repositories(main_directory, include_aur):
     print("\nUpdating GitHub repositories...\n")
@@ -18,9 +18,13 @@ def update_github_repositories(main_directory, include_aur):
 
 def main():
     welcome()
-    main_directory = input("Enter the path to the directory containing GitHub repositories: ")
-    include_aur = input("Do you want to include directories with the '-aur' suffix? (Y/N): ").lower() == 'y'
-    update_github_repositories(main_directory, include_aur)
+    current_directory = os.getcwd()
+    main_directory = input(f"Current directory is: {current_directory}\nDo you want to update repositories here? (Y/N): ")
+    if main_directory.lower() == 'y':
+        include_aur = input("Do you want to include directories with the '-aur' suffix? (Y/N): ").lower() == 'y'
+        update_github_repositories(current_directory, include_aur)
+    else:
+        print("You need to be inside a directory with GitHub repositories to update them.")
 
 if __name__ == "__main__":
     main()
