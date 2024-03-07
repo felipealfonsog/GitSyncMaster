@@ -22,24 +22,16 @@ def update_github_repositories(main_directory, include_aur):
 def main():
     welcome()
     current_directory = os.getcwd()
-    if not any('.git' in root for root, _, _ in os.walk(current_directory)):
-        print("No GitHub repositories found in the current directory or its subdirectories. Exiting.")
-        return
-    main_directory = input(f"Current directory is: {current_directory}\nDo you want to update repositories here? (Press Enter for No, Y for Yes default is No): ")
-    if main_directory.lower() != 'y':
-        abort_choice = input("Do you want to abort the process? (Press Enter for No, Y for Yes default is No): ").lower()
-        if abort_choice == 'y':
-            print("Operation aborted.")
-            return
+    main_directory = input(f"Current directory is: {current_directory}\nDo you want to update repositories here? (Y/N, default is Y): ")
+    if main_directory.lower() != 'n':
+        exclude_choice = input("Do you want to exclude directories with the '-aur' suffix? (Press Enter for Yes, N for No, default is Yes): ").lower()
+        if exclude_choice == '' or exclude_choice == 'y':
+            include_aur = False
         else:
-            print("You need to be inside a directory with GitHub repositories to update them.")
-            return
-    exclude_choice = input("Do you want to exclude directories with the '-aur' suffix? (Press Enter for Yes, N for No, default is Yes): ").lower()
-    if exclude_choice == '' or exclude_choice == 'y':
-        include_aur = False
+            include_aur = True
+        update_github_repositories(current_directory, include_aur)
     else:
-        include_aur = True
-    update_github_repositories(current_directory, include_aur)
+        print("You need to be inside a directory with GitHub repositories to update them.")
 
 if __name__ == "__main__":
     main()
