@@ -20,6 +20,8 @@ GitSyncMaster* is a versatile tool designed to simplify the process of updating 
 
 <sub>* This is currently an experimental phase where the primary focus is on making the system functional and establishing a practical and logical pathway that aligns with both my vision and the project's goals. It might contain errors, bugs, etc. Many other non-core elements of the project are considered secondary.</sub>
 
+#
+
 #### Features:
 
 - **Exclusion Feature:**
@@ -104,11 +106,25 @@ GitSyncMaster* is a versatile tool designed to simplify the process of updating 
      ```
    - Run the script to perform updates with exclusions taken into account.
 
-#### On macOS usually the directory can be like this:
+#
+
+**Note: On macOS usually the directory can be like this:**
 
 ```
  main_directory="/Volumes/Macintosh\ HD/Users/user/Documents/Development"
 ```
+
+Or possibly, you can use a relative path instead of an absolute one:
+
+```
+ main_directory="/Users/user/Documents/Development/excludedir1"
+```
+The code for macOS is in the following directory within the repository:
+
+```
+src/macos
+```
+#
 
 #### 🤝 Support and Contributions
 
