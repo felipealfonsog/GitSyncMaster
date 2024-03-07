@@ -6,15 +6,15 @@ main_directory="/Users/user/Documents/Development"
 exclude_flag=true
 # Directories to exclude from updating
 exclude_directories=(
-    "/Users/user/Documents/Development/excludedir1"
+    "/Users/user/Documents/Development/dir1"
     # Add more directories as needed
 )
 
 # Function to check if a directory is in the exclusion list
 is_excluded() {
-    local dir_to_check="$1"
+    local dir_to_check=$(readlink -f "$1")
     for excluded_dir in "${exclude_directories[@]}"; do
-        if [[ "$dir_to_check" == "$excluded_dir" ]]; then
+        if [[ "$dir_to_check" == "$(readlink -f "$excluded_dir")" ]]; then
             return 0
         fi
     done
