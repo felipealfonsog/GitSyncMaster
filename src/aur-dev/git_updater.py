@@ -18,30 +18,31 @@ def update_github_repositories(main_directory, include_aur):
                 if include_aur or not root.endswith("-aur"):
                     print(f"Updating repository in {root}")
                     os.chdir(root)
-                    result = os.system('git pull')  # Capture the result of the git pull operation
+                    result = os.system('git pull')
                     os.chdir(main_directory)
-                    if result == 0:  # Check if the git pull operation was successful
+                    if result == 0:
                         print("Repository updated successfully.")
                     else:
                         print("Error updating repository.")
     if not found_repos:
         print("No GitHub repositories found in the current directory or its subdirectories. Exiting.")
+        exit()
 
 def main():
     welcome()
     current_directory = os.getcwd()
     if not any('.git' in root for root, _, _ in os.walk(current_directory)):
         print("You need to be inside a directory with GitHub repositories to update them.")
-        return
-    main_directory = input(f"Do you want to update repositories here? (Press Enter for No, Y for Yes default is No): ")
+        exit()
+    main_directory = input("Do you want to update repositories here? (Press Enter for Yes, No for cancel, default is Yes): ")
     if main_directory.lower() == '' or main_directory.lower() == 'y':
         abort_choice = input("Do you want to abort the process? (Press Enter for No, Y for Yes default is No): ").lower()
         if abort_choice == 'y':
             print("Operation aborted.")
-            return
+            exit()
     else:
         print("You need to be inside a directory with GitHub repositories to update them.")
-        return
+        exit()
     exclude_choice = input("Do you want to exclude directories with the '-aur' suffix? (Press Enter for Yes, N for No, default is Yes): ").lower()
     if exclude_choice == '' or exclude_choice == 'y':
         include_aur = False
