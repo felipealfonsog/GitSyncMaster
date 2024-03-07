@@ -52,7 +52,7 @@ GitSyncMaster (gitsync on AUR) is available on AUR (Arch User Repository), and i
    ```
    sudo pacman -S yay
    ```
-   Once yay is installed, you can install Term PDF by running the following command:
+   Once yay is installed, you can install it by running the following command:
    
    ```
    yay -S gitsync
