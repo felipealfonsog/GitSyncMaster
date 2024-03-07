@@ -63,7 +63,7 @@ Then, run it with the following command:
 gitsync
 ```
 
-<sub>*IMPORTANT NOTE USAGE: Once it's installed, and you run the software, you should be able to update your repositories, but, you **should** be withtin a directory with all the repositories you want to update.</sub>
+<sub>*IMPORTANT NOTE USAGE: Once it's installed, and you run the software, you should be able to update your repositories, but, you **should** be withtin a directory with all the repositories you want to update. Right now it's going to be tested using Python and/or Bash.</sub>
 
 #### Usage Instructions:
 
