@@ -30,6 +30,41 @@ GitSyncMaster* is a versatile tool designed to simplify the process of updating 
 - **Cron Integration:**
   - Seamlessly integrate GitSyncMaster with cron jobs for scheduled updates at predefined intervals, ensuring your repositories are always up to date.
 
+#### Installation (Special version for Arch Linux)*
+#### Via AUR using YAY
+
+[![AUR](https://img.shields.io/aur/version/gitsync)](https://aur.archlinux.org/packages/gitsync)
+
+<!-- 
+[![AUR](https://img.shields.io/aur/version/gitsync.svg)](https://aur.archlinux.org/packages/gitsync)
+-->
+
+<!-- 
+https://aur.archlinux.org/packages/gitsync
+-->
+
+GitSyncMaster (gitsync on AUR) is available on AUR (Arch User Repository), and it can be installed using the `yay` package manager. Follow the steps below to install:
+
+1. Make sure you have `yay` installed. If not, you can install it with the following command:
+   
+   ```
+   sudo pacman -S yay
+   ```
+   Once yay is installed, you can install Term PDF by running the following command:
+   
+   ```
+   yay -S gitsync
+   ```
+This command will automatically fetch the package from AUR and handle the installation process for you.
+
+Then, run it with the following command:
+
+```
+gitsync
+```
+
+<sub>*IMPORTANT NOTE USAGE: Once it's installed, and you run the software, you should be able to update your repositories, but, you **should** be withtin a directory with all the repositories you want to update.</sub>
+
 #### Usage Instructions:
 
 1. **Bash Script (git_update.sh):**
