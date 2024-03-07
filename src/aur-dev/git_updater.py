@@ -19,9 +19,9 @@ def update_github_repositories(main_directory, include_aur):
 def main():
     welcome()
     current_directory = os.getcwd()
-    main_directory = input(f"Current directory is: {current_directory}\nDo you want to update repositories here? (Y/N): ")
-    if main_directory.lower() == 'y':
-        include_aur = input("Do you want to include directories with the '-aur' suffix? (Y/N): ").lower() == 'y'
+    main_directory = input(f"Current directory is: {current_directory}\nDo you want to update repositories here? (Press Enter for Yes, N for No): ").lower()
+    if main_directory == '' or main_directory == 'y':
+        include_aur = input("Do you want to include directories with the '-aur' suffix? (Press Enter for Yes, N for No): ").lower() == 'y'
         update_github_repositories(current_directory, include_aur)
     else:
         print("You need to be inside a directory with GitHub repositories to update them.")
