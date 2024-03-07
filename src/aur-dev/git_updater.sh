@@ -22,9 +22,9 @@ update_github_repositories() {
 main() {
     welcome
     current_directory=$(pwd)
-    read -p "Current directory is: $current_directory Do you want to update repositories here? (Y/N): " main_directory
-    if [[ "$main_directory" =~ [Yy] ]]; then
-        read -p "Do you want to include directories with the '-aur' suffix? (Y/N): " include_aur
+    read -p "Current directory is: $current_directory. Do you want to update repositories here? (Press Enter for Yes, N for No): " main_directory
+    if [[ "$main_directory" == '' || "$main_directory" =~ [Yy] ]]; then
+        read -p "Do you want to include directories with the '-aur' suffix? (Press Enter for Yes, N for No): " include_aur
         include_aur=$(echo "${include_aur,,}" | tr -d '\n')  # Convert to lowercase and remove newline characters
         include_aur=${include_aur:-n}  # Default to 'n' if user input is empty
         include_aur=${include_aur:0:1}  # Extract first character
