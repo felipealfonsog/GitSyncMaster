@@ -25,22 +25,24 @@ update_github_repositories() {
 main() {
     welcome
     current_directory=$(pwd)
+    if ! find "$current_directory" -type d -name '.git' | grep -q .; then
+        echo "You need to be inside a directory with GitHub repositories to update them."
+        return
+    fi
     read -p "Current directory is: $current_directory. Do you want to update repositories here? (Press Enter for Yes, N for No, default is Yes): " main_directory
     if [[ "$main_directory" == '' || "$main_directory" =~ [Yy] ]]; then
+        read -p "Do you want to abort the process? (Press Enter for No, Y for Yes default is No): " abort_choice
+        if [[ "$abort_choice" =~ [Yy] ]]; then
+            echo "Operation aborted."
+            return
+        fi
         read -p "Do you want to exclude directories with the '-aur' suffix? (Press Enter for Yes, N for No, default is Yes): " exclude_choice
         if [[ "$exclude_choice" == '' || "$exclude_choice" =~ [Yy] ]]; then
             include_aur=false
         else
             include_aur=true
         fi
-        read -p "Do you want to abort the process? (Press Enter for No, Y for Yes default is No): " abort_choice
-        if [[ "$abort_choice" == '' || "$abort_choice" =~ [Yy] ]]; then
-            echo "Operation aborted."
-            return
-        fi
         update_github_repositories "$current_directory" "$include_aur"
-    else
-        echo "You need to be inside a directory with GitHub repositories to update them."
     fi
 }
 
