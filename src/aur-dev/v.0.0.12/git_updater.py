@@ -9,20 +9,15 @@ def welcome():
 
 def update_github_repositories(main_directory, include_aur):
     print("\nUpdating GitHub repositories...\n")
-    found_repos = False
     for root, dirs, files in os.walk(main_directory):
         if '.git' in dirs:
             git_dir = os.path.join(root, '.git')
             if os.path.isdir(git_dir):
-                found_repos = True
                 if include_aur or not root.endswith("-aur"):
                     print(f"Updating repository in {root}")
                     os.chdir(root)
                     os.system('git pull')
                     os.chdir(main_directory)
-    if not found_repos:
-        print("No GitHub repositories found in the current directory or its subdirectories. Exiting.")
-        exit()
 
 def main():
     welcome()
