@@ -1,11 +1,11 @@
 #!/bin/bash
 
 welcome() {
-    echo "Welcome to GitHub Repository Updater!"
-    echo "This script was developed by Computer Science Engineer Felipe Alfonso González - github: github.com/felipealfonsog - under the BSD 3-clause license."
+    echo "Welcome to GitHub Repository Updater -GitSyncMaster-!"
+    echo "This software was developed by Computer Science Engineer Felipe Alfonso González - Github: github.com/felipealfonsog - Under the BSD 3-clause license."
     echo "Developed from Chile with love."
     echo "----------------------------------------------------"
-    echo "This script will update all GitHub repositories within the current directory or its subdirectories."
+    echo "This software will update all GitHub repositories within the current directory or its subdirectories."
 }
 
 update_github_repositories() {
@@ -25,9 +25,9 @@ update_github_repositories() {
 main() {
     welcome
     current_directory=$(pwd)
-    read -p "Current directory is: $current_directory. Do you want to update repositories here? (Press Enter for Yes, N for No): " main_directory
+    read -p "Current directory is: $current_directory. Do you want to update repositories here? (Press Enter for Yes, N for No, default is Yes): " main_directory
     if [[ "$main_directory" == '' || "$main_directory" =~ [Yy] ]]; then
-        read -p "Do you want to exclude directories with the '-aur' suffix? (Press Enter for Yes, N for No): " exclude_choice
+        read -p "Do you want to exclude directories with the '-aur' suffix? (Press Enter for Yes, N for No, default is Yes): " exclude_choice
         if [[ "$exclude_choice" == '' || "$exclude_choice" =~ [Yy] ]]; then
             include_aur=false
         else
