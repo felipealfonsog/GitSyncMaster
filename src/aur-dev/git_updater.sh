@@ -33,14 +33,12 @@ main() {
         else
             include_aur=true
         fi
-        update_github_repositories "$current_directory" "$include_aur"
-    elif [[ "$main_directory" =~ [Nn] ]]; then
         read -p "Do you want to abort the process? (Press Enter for No, Y for Yes default is No): " abort_choice
         if [[ "$abort_choice" == '' || "$abort_choice" =~ [Yy] ]]; then
             echo "Operation aborted."
-        else
-            echo "You need to be inside a directory with GitHub repositories to update them."
+            return
         fi
+        update_github_repositories "$current_directory" "$include_aur"
     else
         echo "You need to be inside a directory with GitHub repositories to update them."
     fi
