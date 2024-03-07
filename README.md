@@ -104,11 +104,11 @@ GitSyncMaster* is a versatile tool designed to simplify the process of updating 
      ```
    - Run the script to perform updates with exclusions taken into account.
 
-*** On macOS usually the directory can be like this: ***
+#### On macOS usually the directory can be like this:
 
-    ```
-    main_directory="/Volumes/Macintosh\ HD/Users/user/Documents/Development"
-    ```
+```
+ main_directory="/Volumes/Macintosh\ HD/Users/user/Documents/Development"
+```
 
 #### 🤝 Support and Contributions
 
