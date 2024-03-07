@@ -12,9 +12,9 @@ def update_github_repositories(main_directory, include_aur):
     found_repos = False
     for root, dirs, files in os.walk(main_directory):
         if '.git' in dirs:
+            found_repos = True
             git_dir = os.path.join(root, '.git')
             if os.path.isdir(git_dir):
-                found_repos = True
                 if include_aur or not root.endswith("-aur"):
                     print(f"Updating repository in {root}")
                     os.chdir(root)
@@ -35,6 +35,9 @@ def main():
         abort_choice = input("Do you want to abort the process? (Press Enter for No, Y for Yes default is No): ").lower()
         if abort_choice == 'y':
             print("Operation aborted.")
+            return
+        else:
+            print("You need to be inside a directory with GitHub repositories to update them.")
             return
     exclude_choice = input("Do you want to exclude directories with the '-aur' suffix? (Press Enter for Yes, N for No, default is Yes): ").lower()
     if exclude_choice == '' or exclude_choice == 'y':
