@@ -224,6 +224,12 @@ cleanup() {
         rm "installer.sh"
         echo "Installer script 'installer.sh' has been deleted."
     fi
+
+    if [[ -f "gitsync" ]]; then
+        rm "gitsync"
+        echo "Installer binary has been deleted."
+    fi
+
 }
 
 
