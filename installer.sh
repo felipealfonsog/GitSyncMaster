@@ -137,7 +137,7 @@ download_source_code() {
 move_exec_file() {
     if [[ $(uname) == "Darwin" ]]; then
         # Transform the Python file into an executable
-        echo '#!/usr/bin/env python' > "gitsync"
+        echo '#!/usr/bin/env bash' > "gitsync"
         echo "python3 /usr/local/bin/$source_file_name \"\$@\"" >> "gitsync"
         chmod +x "gitsync"
 
