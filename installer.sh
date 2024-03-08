@@ -142,23 +142,24 @@ move_exec_file() {
         chmod +x "gitsync"
 
         # Install the executable file to /usr/local/bin/
-        install -Dm755 "gitsync" "/usr/local/bin/gitsync"
+        sudo install -Dm755 "gitsync" "/usr/local/bin/gitsync"
     else
         # Transform the Python file into an executable
         echo '#!/usr/bin/env python' > "gitsync"
         echo 'python3 /usr/local/bin/$source_file_name "$@"' >> "gitsync"
         chmod +x "gitsync"
 
-        # Install the executable file to the appropriate location in Linux
+        # Install the executable file to the appropriate location based on the distribution
         if [[ -f /etc/arch-release ]]; then
-            install -Dm755 "gitsync" "/usr/bin/gitsync"
+            sudo install -Dm755 "gitsync" "/usr/bin/gitsync"
         elif [[ -f /etc/debian_version ]]; then
-            install -Dm755 "gitsync" "/usr/local/bin/gitsync"
+            sudo install -Dm755 "gitsync" "/usr/local/bin/gitsync"
         else
-            install -Dm755 "gitsync" "/usr/local/bin/gitsync"
+            sudo install -Dm755 "gitsync" "/usr/local/bin/gitsync"
         fi
     fi
 }
+
 
 
 
