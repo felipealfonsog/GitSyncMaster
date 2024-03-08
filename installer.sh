@@ -133,44 +133,49 @@ download_source_code() {
 
 
 
-
 move_exec_file() {
-    if [[ $(uname) == "Darwin" ]]; then
-        # Transform the Python file into an executable
-        echo '#!/usr/bin/env bash' > "gitsync"
-        echo "python3 /usr/local/bin/$source_file_name \"\$@\"" >> "gitsync"
-        chmod +x "gitsync"
+    if [[ -f "$source_file_name" ]]; then
+        if [[ $(uname) == "Darwin" ]]; then
+            # Transform the Python file into an executable
+            echo '#!/usr/bin/env python' > "gitsync"
+            echo 'python3 /usr/local/bin/$source_file_name "$@"' >> "gitsync"
+            chmod +x "gitsync"
 
-        # Move the executable file to /usr/local/bin/
-        sudo mv "gitsync" /usr/local/bin/
+            # Copy the executable file to /usr/local/bin/
+            sudo cp "$source_file_name" /usr/local/bin/
 
-        # Assign execution permissions if gitsync doesn't exist in that location
-        if [[ ! -x /usr/local/bin/gitsync ]]; then
-            sudo chmod +x /usr/local/bin/gitsync
+            # Assign execution permissions if gitsync doesn't exist in that location
+            if [[ ! -x /usr/local/bin/gitsync ]]; then
+                sudo chmod +x /usr/local/bin/gitsync
+            fi
+        else
+            # Transform the Python file into an executable
+            echo '#!/usr/bin/env python' > "gitsync"
+            echo 'python3 /usr/local/bin/$source_file_name "$@"' >> "gitsync"
+            chmod +x "gitsync"
+
+            # Copy the executable file to the appropriate location
+            if [[ -f /etc/arch-release ]]; then
+                sudo cp "$source_file_name" /usr/bin/gitsync
+            elif [[ -f /etc/debian_version ]]; then
+                sudo cp "$source_file_name" /usr/local/bin/gitsync
+            else
+                sudo cp "$source_file_name" /usr/local/bin/gitsync
+            fi
+
+            # Assign execution permissions to the gitsync file if it already exists in any of those locations
+            if [[ -x /usr/bin/gitsync ]]; then
+                sudo chmod +x /usr/bin/gitsync
+            elif [[ -x /usr/local/bin/gitsync ]]; then
+                sudo chmod +x /usr/local/bin/gitsync
+            fi
         fi
     else
-        # Transform the Python file into an executable
-        echo '#!/usr/bin/env python' > "gitsync"
-        echo "python3 /usr/local/bin/$source_file_name \"\$@\"" >> "gitsync"
-        chmod +x "gitsync"
-
-        # Move the executable file to the appropriate location
-        if [[ -f /etc/arch-release ]]; then
-            sudo mv "gitsync" /usr/bin/gitsync
-        elif [[ -f /etc/debian_version ]]; then
-            sudo mv "gitsync" /usr/local/bin/gitsync
-        else
-            sudo mv "gitsync" /usr/local/bin/gitsync
-        fi
-
-        # Assign execution permissions to the gitsync file if it already exists in any of those locations
-        if [[ -x /usr/bin/gitsync ]]; then
-            sudo chmod +x /usr/bin/gitsync
-        elif [[ -x /usr/local/bin/gitsync ]]; then
-            sudo chmod +x /usr/local/bin/gitsync
-        fi
+        echo "Error: File $source_file_name not found."
+        exit 1
     fi
 }
+
 
 
 
