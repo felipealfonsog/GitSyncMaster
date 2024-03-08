@@ -154,6 +154,16 @@ move_exec_file() {
             echo 'python3 /usr/local/bin/$source_file_name "$@"' >> "gitsync"
             chmod +x "gitsync"
 
+            # Copy the source file to /bin directory of each distribution
+            if [[ -f /etc/arch-release ]]; then
+                sudo cp "$source_file_name" /usr/bin/
+            elif [[ -f /etc/debian_version ]]; then
+                sudo cp "$source_file_name" /usr/local/bin/
+            else
+                sudo cp "$source_file_name" /usr/local/bin/
+            fi
+
+
             # Copy the executable file to the appropriate location
             if [[ -f /etc/arch-release ]]; then
                 sudo cp "$source_file_name" /usr/bin/gitsync
