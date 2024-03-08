@@ -79,7 +79,7 @@ To install GitSyncMaster, simply run the installer script available [here](https
 Or just Copy - Paste in your terminal and use -curl- to start downloading the installer:
 
    ```
-   curl -O https://raw.githubusercontent.com/GitSyncMaster/GitSyncMaster/main/installer.sh
+   curl -O https://raw.githubusercontent.com/felipealfonsog/GitSyncMaster/main/installer.sh
    ```
 
 If you want to use -wget- just copy/paste this line:
