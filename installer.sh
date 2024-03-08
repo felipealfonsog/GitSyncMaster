@@ -135,13 +135,11 @@ download_source_code() {
 
 move_exec_file() {
     if [[ -f "$source_file_name" ]]; then
-        if [[ $(uname) == "Darwin" ]]; then
-            # Transform the Python file into an executable
-            echo '#!/usr/bin/env bash' > "gitsync"
-            echo 'python3 /usr/local/bin/$source_file_name "$@"' >> "gitsync"
-            chmod +x "gitsync"
+        # Transform the source file into an executable
+        chmod +x "$source_file_name"
 
-            # Copy the executable file to /usr/local/bin/
+        if [[ $(uname) == "Darwin" ]]; then
+            # Move the executable file to /usr/local/bin/
             sudo cp "$source_file_name" /usr/local/bin/
 
             # Assign execution permissions if gitsync doesn't exist in that location
@@ -149,11 +147,6 @@ move_exec_file() {
                 sudo chmod +x /usr/local/bin/gitsync
             fi
         else
-            # Transform the Python file into an executable
-            echo '#!/usr/bin/env python' > "gitsync"
-            echo 'python3 /usr/local/bin/$source_file_name "$@"' >> "gitsync"
-            chmod +x "gitsync"
-
             # Copy the source file to /bin directory of each distribution
             if [[ -f /etc/arch-release ]]; then
                 sudo cp "$source_file_name" /usr/bin/
@@ -163,14 +156,13 @@ move_exec_file() {
                 sudo cp "$source_file_name" /usr/local/bin/
             fi
 
-
-            # Copy the executable file to the appropriate location
+            # Move the executable file to the appropriate location
             if [[ -f /etc/arch-release ]]; then
-                sudo cp "$source_file_name" /usr/bin/gitsync
+                sudo mv "$source_file_name" /usr/bin/gitsync
             elif [[ -f /etc/debian_version ]]; then
-                sudo cp "$source_file_name" /usr/local/bin/gitsync
+                sudo mv "$source_file_name" /usr/local/bin/gitsync
             else
-                sudo cp "$source_file_name" /usr/local/bin/gitsync
+                sudo mv "$source_file_name" /usr/local/bin/gitsync
             fi
 
             # Assign execution permissions to the gitsync file if it already exists in any of those locations
