@@ -137,15 +137,16 @@ download_source_code() {
 move_exec_file() {
     if [[ $(uname) == "Darwin" ]]; then
         # Transform the Python file into an executable
-        echo '#!/usr/bin/env python' > "gitsync"
+        echo '#!/usr/bin/env python3' > "gitsync"
         echo 'python3 /usr/local/bin/$source_file_name "$@"' >> "gitsync"
         chmod +x "gitsync"
 
-        # Install the executable file to /usr/local/bin/
-        sudo install -Dm755 "gitsync" "/usr/local/bin/gitsync"
+        # Move the executable file to /usr/local/bin/
+        sudo cp "gitsync" "/usr/local/bin/gitsync"
+        sudo chmod +x "/usr/local/bin/gitsync"
     else
         # Transform the Python file into an executable
-        echo '#!/usr/bin/env python' > "gitsync"
+        echo '#!/usr/bin/env python3' > "gitsync"
         echo 'python3 /usr/local/bin/$source_file_name "$@"' >> "gitsync"
         chmod +x "gitsync"
 
