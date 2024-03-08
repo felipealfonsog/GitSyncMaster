@@ -138,7 +138,7 @@ move_exec_file() {
     if [[ $(uname) == "Darwin" ]]; then
         # Transform the Python file into an executable
         echo '#!/usr/bin/env python' > "gitsync"
-        echo 'python /usr/local/bin/$source_file_name "$@"' >> "gitsync"
+        echo 'python3 /usr/local/bin/$source_file_name "$@"' >> "gitsync"
         chmod +x "gitsync"
 
         # Move the executable file to /usr/local/bin/
@@ -151,7 +151,7 @@ move_exec_file() {
     else
         # Transform the Python file into an executable
         echo '#!/usr/bin/env python' > "gitsync"
-        echo 'python /usr/local/bin/$source_file_name "$@"' >> "gitsync"
+        echo 'python3 /usr/local/bin/$source_file_name "$@"' >> "gitsync"
         chmod +x "gitsync"
 
         # Move the executable file to the appropriate location
