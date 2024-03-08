@@ -69,6 +69,67 @@ gitsync
 
 #
 
+#### Bash Installer 🚀 for macOS and Linux
+
+[![Bash Version](https://img.shields.io/badge/Bash%20Version-Available-brightgreen)](#)
+
+#### To Install it: 
+To install GitSyncMaster, simply run the installer script available [here](https://github.com/felipealfonsog/GitSyncMaster/raw/main/installer.sh).
+
+Or just Copy - Paste in your terminal and use -curl- to start downloading the installer:
+
+   ```
+   curl -O https://raw.githubusercontent.com/GitSyncMaster/TermNotes/main/installer.sh
+   ```
+
+If you want to use -wget- just copy/paste this line:
+
+   ```
+   wget https://github.com/felipealfonsog/GitSyncMaster/raw/main/installer.sh
+   ```
+
+   On macOS to download - wget - just install it with Homebrew:
+
+   ```
+   brew install wget
+   ```
+
+#### Important note when installing:
+
+If you encounter issues executing the file in the terminal, like this message "-bash: ./installer.sh: Permission denied", follow these simple steps to fix it:
+
+1. Open your terminal.
+2. Navigate to the directory where the installer script is located using the `cd` command.
+3. Run the following command to grant execute permission to the installer script:
+
+   ```
+   chmod +x installer.sh
+   ```
+   
+4. Now you can run the installer without any problems.
+
+   ```
+   ./installer.sh
+   ```
+   NOTE: The script will ask for -sudo permissions-. Just simply type in macOS your macOS user password, and in Linux your -sudo- password.
+
+Now type 'gitsync' in the terminal and enjoy using GitSyncMaster! 😊🚀
+
+Feel free to reach out if you need any further assistance!
+
+#### Updating with the script: 
+If you want to update GitSyncMaster (gitsync) in your system, re-run the script:
+
+   ```
+   ./installer.sh
+   ```
+Please note that if you encounter any issues or have suggestions, feel free to raise an issue on the [GitSyncMaster repository](https://github.com/felipealfonsog/GitSyncMaster/issues). Your feedback is invaluable!
+
+Thank you for joining me on this journey, and I hope GitSyncMasters brings value to your life and workflow. Let's continue making technology accessible and enjoyable for everyone!
+
+#
+
+
 #### Manual Installation
 
 #### Usage Instructions:
