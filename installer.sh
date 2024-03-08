@@ -141,36 +141,25 @@ move_exec_file() {
         echo 'python3 /usr/local/bin/$source_file_name "$@"' >> "gitsync"
         chmod +x "gitsync"
 
-        # Move the executable file to /usr/local/bin/
-        sudo mv "gitsync" /usr/local/bin/
-
-        # Assign execution permissions if gitsync doesn't exist in that location
-        if [[ ! -x /usr/local/bin/gitsync ]]; then
-            sudo chmod +x /usr/local/bin/gitsync
-        fi
+        # Install the executable file to /usr/local/bin/
+        install -Dm755 "gitsync" "/usr/local/bin/gitsync"
     else
         # Transform the Python file into an executable
         echo '#!/usr/bin/env python' > "gitsync"
         echo 'python3 /usr/local/bin/$source_file_name "$@"' >> "gitsync"
         chmod +x "gitsync"
 
-        # Move the executable file to the appropriate location
+        # Install the executable file to the appropriate location in Linux
         if [[ -f /etc/arch-release ]]; then
-            sudo mv "gitsync" /usr/bin/gitsync
+            install -Dm755 "gitsync" "/usr/bin/gitsync"
         elif [[ -f /etc/debian_version ]]; then
-            sudo mv "gitsync" /usr/local/bin/gitsync
+            install -Dm755 "gitsync" "/usr/local/bin/gitsync"
         else
-            sudo mv "gitsync" /usr/local/bin/gitsync
-        fi
-
-        # Assign execution permissions to the gitsync file if it already exists in any of those locations
-        if [[ -x /usr/bin/gitsync ]]; then
-            sudo chmod +x /usr/bin/gitsync
-        elif [[ -x /usr/local/bin/gitsync ]]; then
-            sudo chmod +x /usr/local/bin/gitsync
+            install -Dm755 "gitsync" "/usr/local/bin/gitsync"
         fi
     fi
 }
+
 
 
 
