@@ -32,6 +32,18 @@ GitSyncMaster* is a versatile tool designed to simplify the process of updating 
 
 #
 
+#### Screenshots
+
+[![View Screenshots](https://img.shields.io/badge/View-Screenshots-yellow)](#)
+
+#### Screenshot macOS
+
+<p align="center">
+  <img src="./images/sshot-mac.png" alt="Screenshot macOS" width="400" height="350">
+</p>
+
+#
+
 #### Installation (Special version for Arch Linux)*
 #### Via AUR using YAY
 
