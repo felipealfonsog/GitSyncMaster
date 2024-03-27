@@ -46,8 +46,10 @@ def check_repos(main_directory):
         print("The following repositories require actions:")
         for repo in repos_needing_action:
             print(repo)
+        return repos_needing_action
     else:
         print("No repositories require actions.")
+        return []
 
 def main():
     welcome()
@@ -56,32 +58,51 @@ def main():
         print("You need to be inside a directory with GitHub repositories to update them.")
         exit()
 
-    choice = input("Choose an option:\n1. Check repositories requiring actions.\n2. Update repositories.\nEnter option number: ")
+    choice = input("Choose an option:\n1. Check repositories requiring actions.\n2. Update repositories.\nEnter option number (default is 2): ").strip() or '2'
     if choice == '1':
-        check_repos(current_directory)
-        proceed = input("Do you want to proceed with the action? (Y/n): ").lower()
-        if proceed in ['', 'y']:
-            print("Proceeding with the action.")
-            exit()
+        repos = check_repos(current_directory)
+        if repos:
+            proceed = input("Do you want to proceed with the action? (Y/n): ").lower()
+            if proceed not in ['', 'y']:
+                print("Action aborted.")
+                exit()
+            
+            for repo_path in repos:
+                os.chdir(repo_path)
+                changes = os.popen('git status --porcelain').read().strip()
+                print(f"Repository: {repo_path}\nChanges:\n{changes}")
+                stage_choice = input("Do you want to stage these changes for commit? (Y/n): ").lower()
+                if stage_choice in ['', 'y']:
+                    os.system('git add .')
+                    commit_message = input("Enter commit message: ")
+                    os.system(f'git commit -m "{commit_message}"')
+                    push_choice = input("Do you want to push these changes? (Y/n): ").lower()
+                    if push_choice in ['', 'y']:
+                        os.system('git push')
+                    else:
+                        print("Push aborted.")
+                else:
+                    print("Staging aborted.")
+                os.chdir(current_directory)
         else:
-            print("Action aborted.")
-            exit()
+            print("No repositories require actions.")
     elif choice == '2':
+        abort_choice = input("Do you want to abort the process? (Press Enter for No, Y for Yes default is No): ").lower() or 'n'
+        if abort_choice == 'y':
+            print("Operation aborted.")
+            exit()
+
         main_directory = input("Do you want to update repositories here? (Press Enter for Yes, No for cancel, default is Yes): ")
         if main_directory.lower() == '' or main_directory.lower() == 'y':
-            abort_choice = input("Do you want to abort the process? (Press Enter for No, Y for Yes default is No): ").lower()
-            if abort_choice == 'y':
-                print("Operation aborted.")
-                exit()
+            exclude_choice = input("Do you want to exclude directories with the '-aur' suffix? (Press Enter for Yes, N for No, default is Yes): ").lower() or 'y'
+            if exclude_choice == 'y':
+                include_aur = False
+            else:
+                include_aur = True
+            update_github_repositories(current_directory, include_aur)
         else:
             print("You need to be inside a directory with GitHub repositories to update them.")
             exit()
-        exclude_choice = input("Do you want to exclude directories with the '-aur' suffix? (Press Enter for Yes, N for No, default is Yes): ").lower()
-        if exclude_choice == '' or exclude_choice == 'y':
-            include_aur = False
-        else:
-            include_aur = True
-        update_github_repositories(current_directory, include_aur)
     else:
         print("Invalid option. Exiting.")
         exit()
