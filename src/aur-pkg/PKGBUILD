@@ -1,6 +1,6 @@
 # Mantenedor: Felipe Alfonso Gonzalez <f.alfonso@res-ear.ch>
 pkgname=gitsync
-pkgver=0.0.20
+pkgver=0.0.21
 pkgrel=1
 pkgdesc="GitSyncMaster: Effortlessly Automate Git Repository Updates, Including Committing and Pulling, Across Directory Structures."
 arch=('x86_64')

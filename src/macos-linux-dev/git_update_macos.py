@@ -7,13 +7,13 @@ def welcome():
         print("\033[1;32mThis software was developed by Computer Science Engineer Felipe Alfonso González - Github: github.com/felipealfonsog - Under the BSD 3-clause license.\033[0m")
         print("\033[1;32mDeveloped from Chile with love.\033[0m")
         print("\033[1;32m----------------------------------------------------\033[0m")
-        print("\033[1;32m\033[1mThis software will update all GitHub repositories within the current directory or its subdirectories.\033[0m")
+        print("\033[1;32m\033[1mEffortlessly Automate Git Repository Updates, Including Committing and Pulling, Across Directory Structures.\033[0m")
     else:
         print("Welcome to GitHub Repository Updater -GitSyncMaster-!")
         print("This software was developed by Computer Science Engineer Felipe Alfonso González - Github: github.com/felipealfonsog - Under the BSD 3-clause license.")
         print("Developed from Chile with love.")
         print("----------------------------------------------------")
-        print("This software will update all GitHub repositories within the current directory or its subdirectories.")
+        print("Effortlessly Automate Git Repository Updates, Including Committing and Pulling, Across Directory Structures.")
 
 def update_github_repositories(main_directory, include_aur):
     print("\nUpdating GitHub repositories...\n")
