@@ -30,6 +30,20 @@ GitSyncMaster* is a versatile tool designed to simplify the process of updating 
 - **Cron Integration:**
   - Seamlessly integrate GitSyncMaster with cron jobs for scheduled updates at predefined intervals, ensuring your repositories are always up to date.
 
+#### New Features
+
+1. **Colorized Output**: The program now utilizes ANSI escape codes to provide colorized output for better readability. Messages such as success, errors, and prompts are now displayed in different colors, making it easier to distinguish different types of messages.
+
+2. **Interactive Commit Workflow**: When choosing to check repositories requiring actions (option 1), users are presented with an interactive workflow for staging changes, committing them with a custom message, and optionally pushing the changes to the remote repository. This allows for a smoother and more user-friendly commit process directly from the command line.
+
+3. **Enhanced Repository Update**: During repository update (option 2), if a directory requires a commit before updating, the program now displays a bold red message indicating the need for a commit. After attempting to pull changes from the remote repository, successful updates are displayed in bold blue text, while errors are shown in bold red text.
+
+4. **Abort Confirmation**: Prior to initiating any action, the program prompts users with an abort confirmation to ensure they intend to proceed. This prevents accidental actions and provides users with the opportunity to cancel the operation if needed.
+
+5. **Improved User Interface**: The program now offers a cleaner and more intuitive user interface with clear prompts and instructions at each step. Users are guided through the process of checking for repository actions or updating repositories, ensuring a seamless experience.
+
+These new features aim to enhance the usability, functionality, and overall experience of the GitHub Repository Updater tool.
+
 #
 
 #### Screenshots
