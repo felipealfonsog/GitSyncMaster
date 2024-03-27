@@ -56,6 +56,12 @@ These new features aim to enhance the usability, functionality, and overall expe
   <img src="./images/sshot-mac.png" alt="Screenshot macOS" width="400" height="350">
 </p>
 
+#### Screenshot Linux (Arch)
+
+<p align="center">
+  <img src="./images/sshot-linux.png" alt="Screenshot Linux" width="400" height="350">
+</p>
+
 #
 
 #### Installation (Special version for Arch Linux)*
