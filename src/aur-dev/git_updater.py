@@ -1,11 +1,11 @@
 import os
 
 def welcome():
-    print("Welcome to GitHub Repository Updater -GitSyncMaster-!")
-    print("This software was developed by Computer Science Engineer Felipe Alfonso González - Github: github.com/felipealfonsog - Under the BSD 3-clause license.")
-    print("Developed from Chile with love.")
-    print("----------------------------------------------------")
-    print("This software will update all GitHub repositories within the current directory or its subdirectories.")
+    print("\033[1;32mWelcome to GitHub Repository Updater -GitSyncMaster-!\033[0m")
+    print("\033[1;32mThis software was developed by Computer Science Engineer Felipe Alfonso González - Github: github.com/felipealfonsog - Under the BSD 3-clause license.\033[0m")
+    print("\033[1;32mDeveloped from Chile with love.\033[0m")
+    print("\033[1;32m----------------------------------------------------\033[0m")
+    print("\033[1;32m\033[1mThis software will update all GitHub repositories within the current directory or its subdirectories.\033[0m")
 
 def update_github_repositories(main_directory, include_aur):
     print("\nUpdating GitHub repositories...\n")
@@ -19,14 +19,25 @@ def update_github_repositories(main_directory, include_aur):
                     os.chdir(root)
                     changes = os.popen('git status --porcelain').read().strip()
                     if changes:
-                        print(f"Repository in {root} requires a commit before updating.")
+                        print(f"\033[1;31mRepository in {root} requires a commit before updating.\033[0m")
+                        try:
+                            result = os.system('git pull')
+                            if result == 0:
+                                print("Repository updated successfully.")
+                            else:
+                                print("Error updating repository.")
+                        except Exception as e:
+                            print(f"Error updating repository: {e}")
                     else:
                         print(f"Updating repository in {root}")
-                        result = os.system('git pull')
-                        if result == 0:
-                            print("Repository updated successfully.")
-                        else:
-                            print("Error updating repository.")
+                        try:
+                            result = os.system('git pull')
+                            if result == 0:
+                                print("Repository updated successfully.")
+                            else:
+                                print("Error updating repository.")
+                        except Exception as e:
+                            print(f"Error updating repository: {e}")
                     os.chdir(main_directory)
     if not found_repos:
         print("No GitHub repositories found in the current directory or its subdirectories. Exiting.")
