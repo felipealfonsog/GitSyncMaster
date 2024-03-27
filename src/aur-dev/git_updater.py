@@ -16,14 +16,18 @@ def update_github_repositories(main_directory, include_aur):
             git_dir = os.path.join(root, '.git')
             if os.path.isdir(git_dir):
                 if include_aur or not root.endswith("-aur"):
-                    print(f"Updating repository in {root}")
                     os.chdir(root)
-                    result = os.system('git pull')
-                    os.chdir(main_directory)
-                    if result == 0:
-                        print("Repository updated successfully.")
+                    changes = os.popen('git status --porcelain').read().strip()
+                    if changes:
+                        print(f"Repository in {root} requires a commit before updating.")
                     else:
-                        print("Error updating repository.")
+                        print(f"Updating repository in {root}")
+                        result = os.system('git pull')
+                        if result == 0:
+                            print("Repository updated successfully.")
+                        else:
+                            print("Error updating repository.")
+                    os.chdir(main_directory)
     if not found_repos:
         print("No GitHub repositories found in the current directory or its subdirectories. Exiting.")
         exit()
@@ -40,12 +44,15 @@ def check_repos(main_directory):
                 changes = os.popen('git status --porcelain').read().strip()
                 if changes:
                     repos_needing_action.append(repo_path)
-                    print(f"Repository {repo_path} requires a commit before updating.")
                 os.chdir(main_directory)
 
     if repos_needing_action:
+        print("The following repositories require actions:")
+        for repo in repos_needing_action:
+            print(repo)
         return repos_needing_action
     else:
+        print("No repositories require actions.")
         return []
 
 def main():
@@ -89,7 +96,6 @@ def main():
             print("Operation aborted.")
             exit()
 
-        repos = check_repos(current_directory)
         main_directory = input("Do you want to update repositories here? (Press Enter for Yes, No for cancel, default is Yes): ")
         if main_directory.lower() == '' or main_directory.lower() == 'y':
             exclude_choice = input("Do you want to exclude directories with the '-aur' suffix? (Press Enter for Yes, N for No, default is Yes): ").lower() or 'y'
