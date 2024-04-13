@@ -16,8 +16,8 @@ welcome() {
     ║                                       ║
     ╚═══════════════════════════════════════╝
     "
-    echo "Welcome to the GitHub Repository Updater -GitSyncMaster- installer!"
-    echo "---------------------------------------------------------------------"
+    echo "Welcome to the GitHub Repository Updater -GitSyncMaster- installer Mac M2!"
+    echo "--------------------------------------------------------------------------"
 }
 
 check_execute_permission() {
