@@ -16,8 +16,8 @@ welcome() {
     ║                                       ║
     ╚═══════════════════════════════════════╝
     "
-    echo "Welcome to the GitHub Repository Updater -GitSyncMaster- installer - Mac M1!"
-    echo "----------------------------------------------------------------------------"
+    echo "Welcome to the GitHub Repository Updater -GitSyncMaster- installer!"
+    echo "---------------------------------------------------------------------"
 }
 
 check_execute_permission() {
@@ -62,13 +62,13 @@ check_homebrew_installation_macOS() {
     fi
 }
 
-check_homebrew_installation_linux() {
-    if ! command -v brew &> /dev/null; then
-        echo "Homebrew/Linuxbrew is not installed on Linux. Do you want to install it?"
+install_dependencies_macOS() {
+    if ! command -v python3 &> /dev/null; then
+        echo "Python3 is not installed on macOS. Do you want to install it using Homebrew?"
         select yn in "Yes" "No"; do
             case $yn in
                 Yes)
-                    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+                    brew install python
                     break
                     ;;
                 No)
@@ -131,56 +131,26 @@ download_source_code() {
     curl -o "$source_file_name" "$source_file_url"
 }
 
-
-
 move_exec_file() {
     if [[ -f "$source_file_name" ]]; then
         # Transform the source file into an executable
         chmod +x "$source_file_name"
 
+        # Move the executable file to /usr/local/bin/ on macOS
         if [[ $(uname) == "Darwin" ]]; then
-            # Move the executable file to /usr/local/bin/
             sudo cp "$source_file_name" /usr/local/bin/
-
-            # Assign execution permissions if gitsync doesn't exist in that location
-            if [[ ! -x /usr/local/bin/gitsync ]]; then
-                sudo chmod +x /usr/local/bin/gitsync
-            fi
+            sudo mv "/usr/local/bin/$source_file_name" "/usr/local/bin/gitsync"
+            sudo chmod +x "/usr/local/bin/gitsync"
         else
-            # Copy the source file to /bin directory of each distribution
-            if [[ -f /etc/arch-release ]]; then
-                sudo cp "$source_file_name" /usr/bin/
-            elif [[ -f /etc/debian_version ]]; then
-                sudo cp "$source_file_name" /usr/local/bin/
-            else
-                sudo cp "$source_file_name" /usr/local/bin/
-            fi
-
-            # Move the executable file to the appropriate location
-            if [[ -f /etc/arch-release ]]; then
-                sudo mv "$source_file_name" /usr/bin/gitsync
-            elif [[ -f /etc/debian_version ]]; then
-                sudo mv "$source_file_name" /usr/local/bin/gitsync
-            else
-                sudo mv "$source_file_name" /usr/local/bin/gitsync
-            fi
-
-            # Assign execution permissions to the gitsync file if it already exists in any of those locations
-            if [[ -x /usr/bin/gitsync ]]; then
-                sudo chmod +x /usr/bin/gitsync
-            elif [[ -x /usr/local/bin/gitsync ]]; then
-                sudo chmod +x /usr/local/bin/gitsync
-            fi
+            # Copy the source file to /usr/bin/ on Linux
+            sudo cp "$source_file_name" /usr/bin/gitsync
+            sudo chmod +x /usr/bin/gitsync
         fi
     else
         echo "Error: File $source_file_name not found."
         exit 1
     fi
 }
-
-
-
-
 
 configure_path() {
     if [[ $(uname) == "Darwin" ]]; then
@@ -200,20 +170,6 @@ configure_path() {
     fi
 }
 
-reload_shell() {
-    if [[ $(uname) == "Darwin" ]]; then
-        source ~/.bash_profile
-    elif [[ $(uname) == "Linux" ]]; then
-        if [[ -f /etc/arch-release ]]; then
-            source ~/.bashrc
-        elif [[ -f /etc/debian_version ]]; then
-            source ~/.bashrc
-        else
-            source ~/.bashrc
-        fi
-    fi
-}
-
 cleanup() {
     if [[ -f "$source_file_name" ]]; then
         rm "$source_file_name"
@@ -224,14 +180,7 @@ cleanup() {
         rm "installer.sh"
         echo "Installer script 'installer.sh' has been deleted."
     fi
-
-    if [[ -f "gitsync" ]]; then
-        rm "gitsync"
-        echo "Installer binary has been deleted."
-    fi
-
 }
-
 
 main() {
     welcome
@@ -239,15 +188,14 @@ main() {
 
     if [[ $(uname) == "Darwin" ]]; then
         check_homebrew_installation_macOS
+        install_dependencies_macOS
     elif [[ $(uname) == "Linux" ]]; then
-        check_homebrew_installation_linux
         install_dependencies_linux
     fi
 
     download_source_code
     move_exec_file
     configure_path
-    reload_shell
     cleanup
 
     echo "-------------------------------------------------------------------"
