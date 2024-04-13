@@ -153,6 +153,7 @@ move_exec_file() {
 }
 
 configure_path() {
+    # Append /usr/local/bin to the PATH variable in the appropriate shell configuration file
     if [[ $(uname) == "Darwin" ]]; then
         echo 'export PATH="/usr/local/bin:$PATH"' >> ~/.bash_profile
         source ~/.bash_profile
