@@ -62,12 +62,33 @@ check_homebrew_installation_macOS() {
     fi
 }
 
-install_dependencies_macOS() {
-    if ! command -v python3 &> /dev/null; then
-        echo "Python3 is not installed on macOS. Do you want to install it using Homebrew?"
+check_homebrew_installation_linux() {
+    if ! command -v brew &> /dev/null; then
+        echo "Homebrew/Linuxbrew is not installed on Linux. Do you want to install it?"
         select yn in "Yes" "No"; do
             case $yn in
                 Yes)
+                    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+                    break
+                    ;;
+                No)
+                    echo "Exiting program."
+                    exit 0
+                    ;;
+                *)
+                    echo "Invalid option. Please choose a valid option."
+                    ;;
+            esac
+        done
+    fi
+}
+
+install_dependencies_macOS() {
+    if ! command -v python3 &> /dev/null; then
+        echo "Python3 is not installed on macOS. Do you want to install it?"
+        select yn in "Yes, using Homebrew" "No"; do
+            case $yn in
+                "Yes, using Homebrew")
                     brew install python
                     break
                     ;;
@@ -103,7 +124,7 @@ install_dependencies_linux() {
                     fi
                     break
                     ;;
-                "No")
+                No)
                     echo "Exiting program."
                     exit 0
                     ;;
@@ -114,7 +135,6 @@ install_dependencies_linux() {
         done
     fi
 }
-
 
 download_source_code() {
     if [[ $(uname) == "Darwin" ]]; then
@@ -132,30 +152,20 @@ download_source_code() {
 }
 
 move_exec_file() {
-    if [[ -f "$source_file_name" ]]; then
-        # Transform the source file into an executable
-        chmod +x "$source_file_name"
-
-        # Move the executable file to /usr/local/bin/ on macOS
-        if [[ $(uname) == "Darwin" ]]; then
-            sudo cp "$source_file_name" /usr/local/bin/gitsync
-            sudo chmod +x "/usr/local/bin/gitsync"
-        else
-            # Copy the source file to /usr/bin/ on Linux
-            sudo cp "$source_file_name" /usr/bin/gitsync
-            sudo chmod +x /usr/bin/gitsync
-        fi
+    # Move the executable file to appropriate directory based on the OS
+    if [[ $(uname) == "Darwin" ]]; then
+        sudo cp "$source_file_name" /usr/local/bin/gitsync
+        sudo chmod +x "/usr/local/bin/gitsync"
     else
-        echo "Error: File $source_file_name not found."
-        exit 1
+        sudo cp "$source_file_name" /usr/bin/gitsync
+        sudo chmod +x /usr/bin/gitsync
     fi
 }
 
 configure_path() {
-    # Append /usr/local/bin to the PATH variable in the appropriate shell configuration file
     if [[ $(uname) == "Darwin" ]]; then
-        echo 'export PATH="/usr/local/bin:$PATH"' >> ~/.bash_profile
-        source ~/.bash_profile
+        echo 'export PATH="/usr/local/bin:$PATH"' >> ~/.zshrc
+        source ~/.zshrc
     else
         if [[ -f ~/.zshrc ]]; then
             echo 'export PATH="/usr/local/bin:$PATH"' >> ~/.zshrc
@@ -193,6 +203,7 @@ main() {
         check_homebrew_installation_macOS
         install_dependencies_macOS
     elif [[ $(uname) == "Linux" ]]; then
+        check_homebrew_installation_linux
         install_dependencies_linux
     fi
 
