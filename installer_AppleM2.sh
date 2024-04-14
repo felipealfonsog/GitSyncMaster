@@ -158,7 +158,10 @@ configure_path() {
         echo 'export PATH="/usr/local/bin:$PATH"' >> ~/.bash_profile
         source ~/.bash_profile
     else
-        if [[ -f ~/.bashrc ]]; then
+        if [[ -f ~/.zshrc ]]; then
+            echo 'export PATH="/usr/local/bin:$PATH"' >> ~/.zshrc
+            source ~/.zshrc
+        elif [[ -f ~/.bashrc ]]; then
             echo 'export PATH="/usr/local/bin:$PATH"' >> ~/.bashrc
             source ~/.bashrc
         elif [[ -f ~/.bash_profile ]]; then
