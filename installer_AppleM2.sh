@@ -138,8 +138,7 @@ move_exec_file() {
 
         # Move the executable file to /usr/local/bin/ on macOS
         if [[ $(uname) == "Darwin" ]]; then
-            sudo cp "$source_file_name" /usr/local/bin/
-            sudo mv "/usr/local/bin/$source_file_name" "/usr/local/bin/gitsync"
+            sudo cp "$source_file_name" /usr/local/bin/gitsync
             sudo chmod +x "/usr/local/bin/gitsync"
         else
             # Copy the source file to /usr/bin/ on Linux
