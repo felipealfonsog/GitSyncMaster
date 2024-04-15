@@ -63,7 +63,7 @@ check_homebrew_installation_macOS() {
 }
 
 download_source_code() {
-    source_file_url="https://raw.githubusercontent.com/felipealfonsog/GitSyncMaster/main/src/macos-linux-dev/git_update_maco_silicon.sh"
+    source_file_url="https://raw.githubusercontent.com/felipealfonsog/GitSyncMaster/main/src/macos-linux-dev/git_update_macos_silicon.sh"
     source_file_name="git_update_macos_silicon.sh"
 
     curl -o "$source_file_name" "$source_file_url"
