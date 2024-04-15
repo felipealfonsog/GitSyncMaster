@@ -91,6 +91,11 @@ download_source_code() {
 }
 
 move_exec_file() {
+    # Verificar si /usr/local/bin existe, si no, crearlo
+    if [ ! -d "/usr/local/bin" ]; then
+        sudo mkdir -p /usr/local/bin
+    fi
+
     sudo cp "$source_file_name" /usr/local/bin/gitsync
     sudo chmod +x "/usr/local/bin/gitsync"
 }
