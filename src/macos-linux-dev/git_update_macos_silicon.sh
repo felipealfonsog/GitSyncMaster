@@ -69,28 +69,6 @@ check_repos() {
     fi
 }
 
-update_repos_ssh() {
-    echo -e "\nUpdating GitHub repositories over SSH...\n"
-    found_repos=false
-    for repo in $(find "$1" -type d -name ".git" -exec dirname {} +); do
-        found_repos=true
-        if [[ "$2" == "true" || ! "$repo" =~ "-aur"$ ]]; then
-            cd "$repo" || exit 1
-            echo "Updating repository in $repo"
-            if git pull; then
-                echo "Repository updated successfully."
-            else
-                echo "Error updating repository."
-            fi
-            cd "$1" || exit 1
-        fi
-    done
-    if [[ "$found_repos" == false ]]; then
-        echo "No GitHub repositories found in the current directory or its subdirectories. Exiting."
-        exit 1
-    fi
-}
-
 main() {
     welcome
     current_directory=$(pwd)
@@ -102,7 +80,6 @@ main() {
     read -rp "Choose an option:
 1. Check repositories requiring actions.
 2. Update repositories.
-3. Update repositories over SSH.
 Enter option number (default is 2): " choice
     choice=${choice:-2}
 
@@ -168,15 +145,6 @@ Enter option number (default is 2): " choice
         else
             echo "You need to be inside a directory with GitHub repositories to update them."
             exit 1
-        fi
-    elif [[ "$choice" == "3" ]]; then
-        read -rp "Do you want to update repositories over SSH? (Y/n): " ssh_choice
-        ssh_choice=${ssh_choice:-y}
-        ssh_choice=${ssh_choice,,} # Convert to lowercase
-        if [[ "$ssh_choice" == "y" ]]; then
-            update_repos_ssh "$current_directory"
-        else
-            echo "SSH update aborted."
         fi
     else
         echo "Invalid option. Exiting."
