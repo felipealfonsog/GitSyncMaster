@@ -62,26 +62,6 @@ check_homebrew_installation_macOS() {
     fi
 }
 
-install_dependencies_macOS() {
-    if ! command -v python3 &> /dev/null; then
-        echo "Python3 is not installed on macOS. Do you want to install it?"
-        select yn in "Yes, using Homebrew" "No"; do
-            case $yn in
-                "Yes, using Homebrew")
-                    brew install python
-                    break
-                    ;;
-                No)
-                    echo "Exiting program."
-                    exit 0
-                    ;;
-                *)
-                    echo "Invalid option. Please choose a valid option."
-                    ;;
-            esac
-        done
-    fi
-}
 
 download_source_code() {
     source_file_url="https://raw.githubusercontent.com/felipealfonsog/GitSyncMaster/main/src/macos-linux-dev/git_update_macos_silicon.sh"
@@ -121,7 +101,6 @@ main() {
     welcome
     check_execute_permission
     check_homebrew_installation_macOS
-    install_dependencies_macOS
 
     download_source_code
     move_exec_file
