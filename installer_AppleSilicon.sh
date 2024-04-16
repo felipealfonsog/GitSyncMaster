@@ -91,9 +91,9 @@ cleanup() {
         echo "Downloaded file '$source_file_name' has been deleted."
     fi
 
-    if [[ -f "installer.sh" ]]; then
-        rm "installer.sh"
-        echo "Installer script 'installer.sh' has been deleted."
+    if [[ -f "installer_AppleSilicon.sh" ]]; then
+        rm "installer_AppleSilicon.sh"
+        echo "Installer script 'installer_AppleSilicon.sh' has been deleted."
     fi
 }
 
