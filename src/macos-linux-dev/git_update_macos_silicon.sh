@@ -141,10 +141,11 @@ check_repos() {
 main_menu() {
     welcome
     echo "1. Update all repositories over SSH"
-    echo "2. Update all repositories over HTTPS"
+    echo "2. Update all repositories over HTTPS (default)"
     echo "3. Check repositories for actions"
     echo "4. Quit"
-    read -rp "Enter your choice: " choice
+    read -rp "Enter your choice [2]: " choice
+    choice=${choice:-2}  # Set default choice to 2 if Enter is pressed
 
     case $choice in
         1) update_repos_ssh;;
@@ -154,6 +155,7 @@ main_menu() {
         *) echo "Invalid choice. Please enter a valid option.";;
     esac
 }
+
 
 # Call the main menu function
 main_menu
