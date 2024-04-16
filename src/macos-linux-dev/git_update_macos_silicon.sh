@@ -60,6 +60,11 @@ update_repos_ssh() {
 
 # Function to update repositories over HTTPS
 update_repos_https() {
+    # Ask if the user wants to update repositories with '-aur' suffix
+    read -rp "Do you want to update repositories with '-aur' suffix? (Y/n): " aur_choice
+    aur_choice=${aur_choice:-y}
+    aur_choice=${aur_choice,,} # Convert to lowercase
+
     # Update each repository
     for repo in */.git; do
         repo_dir=$(dirname "$repo")
@@ -134,16 +139,18 @@ check_repos() {
 
 # Main menu function
 main_menu() {
-    echo "Welcome to Git Manager"
+    welcome
     echo "1. Update all repositories over SSH"
     echo "2. Update all repositories over HTTPS"
     echo "3. Check repositories for actions"
+    echo "4. Quit"
     read -rp "Enter your choice: " choice
 
     case $choice in
         1) update_repos_ssh;;
         2) update_repos_https;;
         3) check_repos;;
+        4) echo "Exiting..."; exit;;
         *) echo "Invalid choice. Please enter a valid option.";;
     esac
 }
