@@ -109,8 +109,7 @@ Enter option number (default is 2): " choice
     if [[ "$choice" == "1" ]]; then
         if check_repos "$current_directory"; then
             read -rp "Do you want to proceed with the action? (Y/n): " proceed
-            proceed=${proceed:-y}
-            proceed=${proceed,,} # Convert to lowercase
+            proceed=$(echo "$proceed" | tr '[:upper:]' '[:lower:]')
             if [[ "$proceed" != "y" ]]; then
                 echo "Action aborted."
                 exit 0
@@ -121,15 +120,13 @@ Enter option number (default is 2): " choice
                 changes=$(git status --porcelain)
                 echo -e "Repository: $repo\nChanges:\n$changes"
                 read -rp "Do you want to stage these changes for commit? (Y/n): " stage_choice
-                stage_choice=${stage_choice:-y}
-                stage_choice=${stage_choice,,} # Convert to lowercase
+                stage_choice=$(echo "$stage_choice" | tr '[:upper:]' '[:lower:]')
                 if [[ "$stage_choice" == "y" ]]; then
                     git add .
                     read -rp "Enter commit message: " commit_message
                     git commit -m "$commit_message"
                     read -rp "Do you want to push these changes? (Y/n): " push_choice
-                    push_choice=${push_choice:-y}
-                    push_choice=${push_choice,,} # Convert to lowercase
+                    push_choice=$(echo "$push_choice" | tr '[:upper:]' '[:lower:]')
                     if [[ "$push_choice" == "y" ]]; then
                         git push
                     else
@@ -145,20 +142,17 @@ Enter option number (default is 2): " choice
         fi
     elif [[ "$choice" == "2" ]]; then
         read -rp "Do you want to abort the process? (Press Enter for No, Y for Yes default is No): " abort_choice
-        abort_choice=${abort_choice:-n}
-        abort_choice=${abort_choice,,} # Convert to lowercase
+        abort_choice=$(echo "$abort_choice" | tr '[:upper:]' '[:lower:]')
         if [[ "$abort_choice" == "y" ]]; then
             echo "Operation aborted."
             exit 0
         fi
 
         read -rp "Do you want to update repositories here? (Press Enter for Yes, No for cancel, default is Yes): " main_directory
-        main_directory=${main_directory:-y}
-        main_directory=${main_directory,,} # Convert to lowercase
+        main_directory=$(echo "$main_directory" | tr '[:upper:]' '[:lower:]')
         if [[ "$main_directory" == "y" ]]; then
             read -rp "Do you want to exclude directories with the '-aur' suffix? (Press Enter for Yes, N for No, default is Yes): " exclude_choice
-            exclude_choice=${exclude_choice:-y}
-            exclude_choice=${exclude_choice,,} # Convert to lowercase
+            exclude_choice=$(echo "$exclude_choice" | tr '[:upper:]' '[:lower:]')
             if [[ "$exclude_choice" == "y" ]]; then
                 include_aur=false
             else
@@ -171,8 +165,7 @@ Enter option number (default is 2): " choice
         fi
     elif [[ "$choice" == "3" ]]; then
         read -rp "Do you want to update repositories over SSH? (Y/n): " ssh_choice
-        ssh_choice=${ssh_choice:-y}
-        ssh_choice=${ssh_choice,,} # Convert to lowercase
+        ssh_choice=$(echo "$ssh_choice" | tr '[:upper:]' '[:lower:]')
         if [[ "$ssh_choice" == "y" ]]; then
             update_repos_ssh "$current_directory"
         else

@@ -114,6 +114,13 @@ Or just Copy - Paste in your terminal and use -curl- to start downloading the in
    curl -O https://raw.githubusercontent.com/felipealfonsog/GitSyncMaster/main/installer.sh
    ```
 
+   For Apple Silicon:
+
+      ```
+   curl -O https://raw.githubusercontent.com/felipealfonsog/GitSyncMaster/main/installer_AppleSilison.sh
+   ```
+
+
 If you want to use -wget- just copy/paste this line:
 
    ```
