@@ -39,7 +39,7 @@ update_github_repositories() {
                     echo "Error updating repository."
                 fi
             fi
-            cd "$1" || exit 1
+            cd - >/dev/null || exit 1
         fi
     done
     if [[ "$found_repos" == false ]]; then
@@ -82,7 +82,7 @@ update_repos_ssh() {
             else
                 echo "Error updating repository."
             fi
-            cd "$1" || exit 1
+            cd - >/dev/null || exit 1
         fi
     done
     if [[ "$found_repos" == false ]]; then
@@ -135,7 +135,7 @@ Enter option number (default is 2): " choice
                 else
                     echo "Staging aborted."
                 fi
-                cd "$current_directory" || exit 1
+                cd - >/dev/null || exit 1
             done < <(check_repos "$current_directory")
         else
             echo "No repositories require actions."
