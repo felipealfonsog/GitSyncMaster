@@ -61,7 +61,7 @@ update_repos_ssh() {
 # Function to update repositories over HTTPS
 update_repos_https() {
     # Ask user if they want to update repositories with '-aur' suffix
-    read -rp "Do you want to update repositories with '-aur' suffix? (Y/n): " aur_choice
+    read -rp "Do you want to update repositories with '-aur' suffix? (y/n - default is no): " aur_choice
     aur_choice=${aur_choice:-n}  # Set default choice to 'n' if Enter is pressed
 
     # Update each repository
