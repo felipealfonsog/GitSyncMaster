@@ -63,7 +63,7 @@ update_repos_https() {
     # Ask if the user wants to update repositories with '-aur' suffix
     read -rp "Do you want to update repositories with '-aur' suffix? (Y/n): " aur_choice
     aur_choice=${aur_choice:-y}
-    aur_choice=${aur_choice,,} # Convert to lowercase
+    aur_choice=$(echo "$aur_choice" | tr '[:upper:]' '[:lower:]') # Convert to lowercase
 
     # Update each repository
     for repo in */.git; do
