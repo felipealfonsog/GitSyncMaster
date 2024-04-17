@@ -117,7 +117,7 @@ Or just Copy - Paste in your terminal and use -curl- to start downloading the in
    For Apple Silicon:
 
    ```
-   curl -O https://raw.githubusercontent.com/felipealfonsog/GitSyncMaster/main/installer_AppleSilison.sh
+   curl -O https://raw.githubusercontent.com/felipealfonsog/GitSyncMaster/main/installer_AppleSilicon.sh
    ```
 
 
