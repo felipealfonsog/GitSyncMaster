@@ -76,16 +76,17 @@ move_exec_file() {
     fi
 
     # Mover el archivo Python a /usr/local/bin/
-    sudo cp "$source_file_name" /usr/local/bin/gitsync
+    sudo cp "$source_file_name" /usr/local/bin/gitsync.py
 
-    # Asegurarse de que el archivo sea ejecutable
-    sudo chmod +x "/usr/local/bin/gitsync"
-
-    # Crear un script simple para ejecutar Python
+    # Crear un script bash en /usr/local/bin/gitsync
     echo "#!/bin/bash" | sudo tee /usr/local/bin/gitsync > /dev/null
-    echo "python3 /usr/local/bin/gitsync" | sudo tee -a /usr/local/bin/gitsync > /dev/null
+    echo "python3 /usr/local/bin/gitsync.py \"\$@\"" | sudo tee -a /usr/local/bin/gitsync > /dev/null
+
+    # Hacer que el script sea ejecutable
     sudo chmod +x /usr/local/bin/gitsync
+    sudo chmod +x /usr/local/bin/gitsync.py
 }
+
 
 cleanup() {
     if [[ -f "$source_file_name" ]]; then
