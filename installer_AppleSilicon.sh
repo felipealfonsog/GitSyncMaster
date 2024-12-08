@@ -75,20 +75,16 @@ move_exec_file() {
         sudo mkdir -p /usr/local/bin
     fi
 
+    # Mover el archivo Python a /usr/local/bin/
     sudo cp "$source_file_name" /usr/local/bin/gitsync
+
+    # Asegurarse de que el archivo sea ejecutable
     sudo chmod +x "/usr/local/bin/gitsync"
-}
 
-configure_path() {
-    shell_config_file="~/.zshrc"
-
-    # Check if the shell config file exists and add PATH to it
-    if [ -f "$shell_config_file" ]; then
-        echo 'export PATH="/usr/local/bin:$PATH"' >> "$shell_config_file"
-        source "$shell_config_file"
-    else
-        echo "Shell config file $shell_config_file not found."
-    fi
+    # Crear un script simple para ejecutar Python
+    echo "#!/bin/bash" | sudo tee /usr/local/bin/gitsync > /dev/null
+    echo "python3 /usr/local/bin/gitsync" | sudo tee -a /usr/local/bin/gitsync > /dev/null
+    sudo chmod +x /usr/local/bin/gitsync
 }
 
 cleanup() {
@@ -97,7 +93,7 @@ cleanup() {
         echo "Downloaded file '$source_file_name' has been deleted."
     fi
 
-    # Check if 'installer_AppleSilicon.sh' exists before trying to delete
+    # Eliminar el instalador si lo estás ejecutando desde un archivo temporal
     if [[ -f "$0" ]]; then
         rm "$0"
         echo "Installer script has been deleted."
@@ -111,7 +107,6 @@ main() {
 
     download_source_code
     move_exec_file
-    configure_path
     cleanup
 
     echo "-------------------------------------------------------------------"
