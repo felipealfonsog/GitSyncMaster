@@ -27,7 +27,7 @@ check_execute_permission() {
             case $yn in
                 Yes)
                     chmod +x "$0"
-                    exec "$0" "$@"
+                    exec "$0" "$@"  # Re-run the script after adding execute permission
                     ;;
                 No)
                     echo "Exiting program."
@@ -62,10 +62,9 @@ check_homebrew_installation_macOS() {
     fi
 }
 
-
 download_source_code() {
-    source_file_url="https://raw.githubusercontent.com/felipealfonsog/GitSyncMaster/main/src/macos-linux-dev/git_update_macos_silicon.sh"
-    source_file_name="git_update_macos_silicon.sh"
+    source_file_url="https://raw.githubusercontent.com/felipealfonsog/GitSyncMaster/main/src/macos-linux-dev/git_update_macos_silicon.py"
+    source_file_name="git_update_macos_silicon.py"
 
     curl -o "$source_file_name" "$source_file_url"
 }
@@ -81,8 +80,15 @@ move_exec_file() {
 }
 
 configure_path() {
-    echo 'export PATH="/usr/local/bin:$PATH"' >> ~/.zshrc
-    source ~/.zshrc
+    shell_config_file="~/.zshrc"
+
+    # Check if the shell config file exists and add PATH to it
+    if [ -f "$shell_config_file" ]; then
+        echo 'export PATH="/usr/local/bin:$PATH"' >> "$shell_config_file"
+        source "$shell_config_file"
+    else
+        echo "Shell config file $shell_config_file not found."
+    fi
 }
 
 cleanup() {
@@ -91,9 +97,10 @@ cleanup() {
         echo "Downloaded file '$source_file_name' has been deleted."
     fi
 
-    if [[ -f "installer_AppleSilicon.sh" ]]; then
-        rm "installer_AppleSilicon.sh"
-        echo "Installer script 'installer_AppleSilicon.sh' has been deleted."
+    # Check if 'installer_AppleSilicon.sh' exists before trying to delete
+    if [[ -f "$0" ]]; then
+        rm "$0"
+        echo "Installer script has been deleted."
     fi
 }
 
