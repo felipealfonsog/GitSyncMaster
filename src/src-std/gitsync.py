@@ -63,12 +63,27 @@ def find_and_create_pr(base_path):
             if os.path.isdir(os.path.join(repo_path, ".git")):
                 os.chdir(repo_path)
 
+                # Get the current branch name
+                branch_result = subprocess.run(["git", "branch", "--show-current"], capture_output=True, text=True)
+                current_branch = branch_result.stdout.strip()
+
+                if not current_branch:
+                    print(f"\nFailed to determine the current branch in {repo_path}. Skipping repository.")
+                    continue
+
+                # Check for differences with the base branch
+                base_branch = "main"  # Default base branch
+                diff_result = subprocess.run(["git", "log", f"origin/{base_branch}..{current_branch}"], capture_output=True, text=True)
+                if not diff_result.stdout.strip():
+                    print(f"\nNo new commits to create a pull request in {repo_path}. Skipping repository.")
+                    continue
+
                 # Check for open pull requests
                 process = subprocess.run(["gh", "pr", "status"], capture_output=True, text=True)
                 if "no open pull requests" in process.stdout.lower():
                     try:
                         # Create a new pull request
-                        create_pr_process = subprocess.run(["gh", "pr", "create", "--fill"], capture_output=True, text=True)
+                        create_pr_process = subprocess.run(["gh", "pr", "create", "--base", base_branch, "--head", current_branch, "--fill"], capture_output=True, text=True)
                         if create_pr_process.returncode == 0:
                             print(f"\nPull request created successfully in {repo_path}.")
                             print(create_pr_process.stdout)
