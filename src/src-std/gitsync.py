@@ -2,7 +2,7 @@ import os
 import subprocess
 
 def print_header():
-    print("""
+    print(r"""
     ==========================================================
 
                 .__  __                               
@@ -40,8 +40,10 @@ def print_credits():
     print("-" * 50)
     print("_" * 50)
 
+
 def check_repositories(base_path):
     for root, dirs, _ in os.walk(base_path):
+        # Se eliminó el filtro basado en el sufijo
         for d in dirs:
             repo_path = os.path.join(root, d)
             if os.path.isdir(os.path.join(repo_path, ".git")):
@@ -68,6 +70,7 @@ def check_repositories(base_path):
                 else:
                     pass  # No changes detected, skip output
 
+
 def update_repositories(base_path):
     for root, dirs, _ in os.walk(base_path):
         for d in dirs:
@@ -83,6 +86,9 @@ def update_repositories(base_path):
                     print("Repository updated successfully.\n")
                 else:
                     print(f"Failed to update repository. Error: {process.stderr}\n")
+
+
+
 
 def find_and_create_pr(base_path):
     pr_created = False  # Flag to track if a PR was created
@@ -209,31 +215,61 @@ def find_and_create_pr(base_path):
                                 break  # Exit after the first failed attempt
                         except subprocess.CalledProcessError as e:
                             print(f"Error while creating pull request in {repo_path}: {e}")
-                            continue
+                            break  # Exit after the first failed attempt
+                else:
+                    print(f"No new commits detected for {repo_path} between {current_branch} and origin/{default_branch}. Skipping PR creation.")
+
+                # Handle repos that require a commit before PR
+                if not diff_result.stdout.strip():
+                    repos_missing_commits.append(repo_path)
+
+    # Output missing commit repositories
+    if repos_missing_commits:
+        print("\nThe following repositories require commits before creating a PR:")
+        for repo in repos_missing_commits:
+            print(f"- {repo}")
+    
+    if not pr_created:
+        print("\nNo pull requests were created. Check the repository status for possible issues.")
+    else:
+        print("\nPull request was created and attempted to merge successfully.")
+
+
+
 
 def main():
     print_header()
-    print("Welcome to the GitSync tool!\n")
-    
-    base_path = input("Enter the base path to check repositories: ")
-    
+    base_path = os.getcwd()
+
     while True:
-        print("\nChoose an option:")
-        print("1. Check repositories for changes")
-        print("2. Update all repositories")
-        print("3. Find repositories and create PR")
-        print("4. Exit")
-        
-        option = input("Enter your choice: ").strip()
+        print("\nOptions:")
+        print("1. Check repositories and push changes")
+        print("2. Update repositories")
+        print("3. Find and create pull requests")
+        print("4. Show credits")
+        print("5. Exit")
+
+        option = input("Enter option number (default is 2): ").strip() or "2"
 
         if option == "1":
             check_repositories(base_path)
+
         elif option == "2":
             update_repositories(base_path)
+
         elif option == "3":
             find_and_create_pr(base_path)
+
         elif option == "4":
-            print("Goodbye!")
+            print_credits()
+
+        elif option == "5":
+            print("Exiting program. Goodbye!")
             break
+
         else:
             print("Invalid option. Please try again.")
+
+if __name__ == "__main__":
+    main()
+
