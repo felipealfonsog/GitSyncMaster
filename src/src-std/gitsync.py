@@ -87,36 +87,33 @@ def find_and_create_pr(base_path):
                     ["git", "log", f"origin/{current_branch}..{current_branch}", "--oneline"],
                     capture_output=True, text=True
                 )
+                if diff_result.returncode != 0:
+                    print(f"Failed to check differences in {repo_path}. Error: {diff_result.stderr}")
+                    continue  # Skip if error in checking diff
 
-                if diff_result.returncode != 0 or not diff_result.stdout.strip():
-                    print(f"No new commits between {current_branch} and origin/{current_branch} in {repo_path}. Skipping PR creation.")
-                    continue  # No new commits, silently skip
-
-                # Add to the list of repositories needing a PR
-                repositories_with_pr.append(repo_path)
-
-    if repositories_with_pr:
-        for repo in repositories_with_pr:
-            print(f"\nPR Creation needed for repository: {repo}")
-            try:
-                # Create a new pull request
-                create_pr_process = subprocess.run(
-                    ["gh", "pr", "create", "--base", "main", "--head", current_branch, "--title", "Update repository", "--body", "This pull request contains the latest changes from the local branch."],
-                    capture_output=True, text=True
-                )
-                if create_pr_process.returncode == 0:
-                    print(f"Pull request created successfully in {repo}.")
-                    pr_created = True
+                if diff_result.stdout.strip():
+                    # New commits detected, proceed with PR creation
+                    print(f"\nPR Creation needed for repository: {repo_path}")
+                    try:
+                        # Create a new pull request using the GitHub CLI (gh)
+                        create_pr_process = subprocess.run(
+                            ["gh", "pr", "create", "--base", "main", "--head", current_branch, "--fill"],
+                            capture_output=True, text=True
+                        )
+                        if create_pr_process.returncode == 0:
+                            print(f"Pull request created successfully in {repo_path}.")
+                            pr_created = True
+                        else:
+                            print(f"Failed to create pull request in {repo_path}. Error: {create_pr_process.stderr}")
+                    except subprocess.CalledProcessError as e:
+                        print(f"Error while creating pull request in {repo_path}: {e}")
                 else:
-                    print(f"Failed to create pull request in {repo}. Error: {create_pr_process.stderr}")
-            except subprocess.CalledProcessError as e:
-                print(f"Error while creating pull request in {repo}: {e}")
+                    print(f"\nNo new commits between {current_branch} and origin/{current_branch} in {repo_path}. Skipping PR creation.")
 
     if not pr_created:
         print("\nNo repositories had changes that required a pull request.")
     else:
         print("\nPull requests were created for the repositories with changes.")
-
 
 
 def main():
