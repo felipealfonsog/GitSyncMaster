@@ -87,7 +87,6 @@ def update_repositories(base_path):
                     print(f"Failed to update repository. Error: {process.stderr}\n")
 
 
-
 def find_and_create_pr(base_path):
     pr_created = False  # Flag to track if a PR was created
     pr_number = None  # Store the PR number to merge it later
@@ -142,13 +141,13 @@ def find_and_create_pr(base_path):
 
                 print(f"Default branch: {default_branch}")
 
-                # Check if there are local commits that are not pushed yet
+                # Check for differences between local and remote branch using git diff
                 diff_result = subprocess.run(
-                    ["git", "log", f"origin/{default_branch}..{current_branch}", "--oneline"],
+                    ["git", "diff", f"origin/{default_branch}..{current_branch}"],
                     capture_output=True, text=True
                 )
                 if diff_result.returncode != 0:
-                    print(f"Error checking commits for {repo_path}. Error: {diff_result.stderr}")
+                    print(f"Error comparing branches in {repo_path}. Error: {diff_result.stderr}")
                     continue
 
                 if diff_result.stdout.strip():
@@ -283,7 +282,6 @@ def find_and_create_pr(base_path):
         print("\nNo pull requests were created. Check the repository status for possible issues.")
     else:
         print("\nPull request was created and attempted to merge successfully.")
-
 
 
 
