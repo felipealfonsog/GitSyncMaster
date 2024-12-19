@@ -17,22 +17,28 @@ def check_repositories(base_path, exclude_suffix="-aur"):
         for d in dirs:
             repo_path = os.path.join(root, d)
             if os.path.isdir(os.path.join(repo_path, ".git")):
-                print(f"\nChecking repository: {repo_path}")
                 os.chdir(repo_path)
 
                 status = subprocess.run(["git", "status", "--short"], capture_output=True, text=True)
                 if status.stdout.strip():
-                    print("Changes detected!")
+                    print(f"\nChanges detected in repository: {repo_path}")
                     commit_msg = input("Enter commit message (default is 'Updates'): ").strip() or "Updates"
                     try:
                         subprocess.run(["git", "add", "-A"], check=True)
                         subprocess.run(["git", "commit", "-m", commit_msg], check=True)
-                        subprocess.run(["git", "push", "origin", "master"], check=True)
+
+                        # Get the current branch name
+                        branch_result = subprocess.run(["git", "branch", "--show-current"], capture_output=True, text=True, check=True)
+                        current_branch = branch_result.stdout.strip()
+
+                        # Push to the current branch
+                        subprocess.run(["git", "push", "origin", current_branch], check=True)
                         print(f"Changes pushed to repository: {repo_path}\n")
+
                     except subprocess.CalledProcessError as e:
-                        print(f"Error while pushing changes: {e}\n")
+                        print(f"Error while pushing changes in {repo_path}: {e}\n")
                 else:
-                    print("No changes detected.")
+                    pass  # No changes detected, skip output
 
 def update_repositories(base_path):
     for root, dirs, _ in os.walk(base_path):
