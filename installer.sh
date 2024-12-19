@@ -118,10 +118,10 @@ install_dependencies_linux() {
 
 download_source_code() {
     if [[ $(uname) == "Darwin" ]]; then
-        source_file_url="https://raw.githubusercontent.com/felipealfonsog/GitSyncMaster/main/src/macos-linux-dev/git_update_macos.py"
+        source_file_url="https://raw.githubusercontent.com/felipealfonsog/GitSyncMaster/refs/heads/main/src/src-std/gitsync.sh"
         source_file_name="git_update_macos.py"
     elif [[ $(uname) == "Linux" ]]; then
-        source_file_url="https://raw.githubusercontent.com/felipealfonsog/GitSyncMaster/main/src/macos-linux-dev/git_update_linux.py"
+        source_file_url="https://raw.githubusercontent.com/felipealfonsog/GitSyncMaster/main/src/src-std/gitsync.py"
         source_file_name="git_update_linux.py"
     else
         echo "Unsupported operating system. Please install manually, read documentation, and re-run the installer."
