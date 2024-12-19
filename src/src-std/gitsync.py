@@ -88,8 +88,6 @@ def update_repositories(base_path):
                     print(f"Failed to update repository. Error: {process.stderr}\n")
 
 
-
-
 def find_and_create_pr(base_path):
     pr_created = False  # Flag to track if a PR was created
     repos_missing_commits = []  # Track repos that require commits before PR creation
@@ -166,20 +164,8 @@ def find_and_create_pr(base_path):
                         pr_url = pr_check_result.stdout.strip().split("\n")[0].split()[1]
                         pr_number = pr_check_result.stdout.strip().split("\n")[0].split()[0]
                         print(f"PR already exists for {repo_path}: {pr_url} (PR #{pr_number})")
-
-                        # Attempt to merge the existing PR
-                        print(f"Attempting to merge PR #{pr_number} into {default_branch}...")
-                        merge_pr_process = subprocess.run(
-                            ["gh", "pr", "merge", pr_number, "--merge", "--auto"],
-                            capture_output=True, text=True
-                        )
-                        if merge_pr_process.returncode == 0:
-                            print(f"PR #{pr_number} successfully merged into {default_branch}.")
-                        else:
-                            print(f"Failed to merge PR #{pr_number}. Error: {merge_pr_process.stderr}")
-
                     else:
-                        # Create new PR if it doesn't exist
+                        # Create a new PR
                         try:
                             create_pr_process = subprocess.run(
                                 ["gh", "pr", "create", "--base", default_branch, "--head", current_branch, "--fill"],
@@ -189,18 +175,8 @@ def find_and_create_pr(base_path):
                                 pr_number = create_pr_process.stdout.split()[0]
                                 pr_url = create_pr_process.stdout.split()[1] if len(create_pr_process.stdout.split()) > 1 else "No URL"
                                 print(f"Pull request successfully created for {repo_path}. PR #{pr_number}. URL: {pr_url}")
-
-                                # After creating the PR, merge it automatically
-                                print(f"Attempting to merge PR #{pr_number} into {default_branch}...")
-                                merge_pr_process = subprocess.run(
-                                    ["gh", "pr", "merge", pr_number, "--merge", "--auto"],
-                                    capture_output=True, text=True
-                                )
-                                if merge_pr_process.returncode == 0:
-                                    print(f"PR #{pr_number} successfully merged into {default_branch}.")
-                                else:
-                                    print(f"Failed to merge PR #{pr_number}. Error: {merge_pr_process.stderr}")
                                 pr_created = True
+                                pr_number = pr_number  # Store the PR number for merge
                                 break  # Only show the first repo with changes for PR creation
                             else:
                                 print(f"Failed to create pull request in {repo_path}. Error: {create_pr_process.stderr}")
@@ -209,34 +185,7 @@ def find_and_create_pr(base_path):
                             print(f"Error while creating pull request in {repo_path}: {e}")
                             break  # Exit after the first failed attempt
                 else:
-                    # Force PR creation even if no diff was found
-                    print(f"No new commits detected for {repo_path} between {current_branch} and origin/{default_branch}. Forcing PR creation.")
-                    
-                    try:
-                        create_pr_process = subprocess.run(
-                            ["gh", "pr", "create", "--base", default_branch, "--head", current_branch, "--fill"],
-                            capture_output=True, text=True
-                        )
-                        if create_pr_process.returncode == 0:
-                            pr_number = create_pr_process.stdout.split()[0]
-                            pr_url = create_pr_process.stdout.split()[1] if len(create_pr_process.stdout.split()) > 1 else "No URL"
-                            print(f"Pull request successfully created for {repo_path}. PR #{pr_number}. URL: {pr_url}")
-
-                            # After creating the PR, merge it automatically
-                            print(f"Attempting to merge PR #{pr_number} into {default_branch}...")
-                            merge_pr_process = subprocess.run(
-                                ["gh", "pr", "merge", pr_number, "--merge", "--auto"],
-                                capture_output=True, text=True
-                            )
-                            if merge_pr_process.returncode == 0:
-                                print(f"PR #{pr_number} successfully merged into {default_branch}.")
-                            else:
-                                print(f"Failed to merge PR #{pr_number}. Error: {merge_pr_process.stderr}")
-                            pr_created = True
-                            break  # Only show the first repo with changes for PR creation
-                    except subprocess.CalledProcessError as e:
-                        print(f"Error while creating pull request in {repo_path}: {e}")
-                        break  # Exit after the first failed attempt
+                    print(f"No new commits detected for {repo_path} between {current_branch} and origin/{default_branch}. Skipping PR creation.")
 
                 # Handle repos that require a commit before PR
                 if not diff_result.stdout.strip():
@@ -252,8 +201,20 @@ def find_and_create_pr(base_path):
         print("\nNo pull requests were created. Check the repository status for possible issues.")
     else:
         print("\nPull request was created for the repository with changes.")
-
-
+        # Attempt to merge the existing PR
+        print(f"Attempting to merge PR #{pr_number} into {default_branch}...")
+        merge_pr_process = subprocess.run(
+            ["gh", "pr", "merge", pr_number, "--merge", "--auto"],
+            capture_output=True, text=True
+        )
+        if merge_pr_process.returncode == 0:
+            print(f"PR #{pr_number} successfully merged into {default_branch}.")
+        else:
+            error_message = merge_pr_process.stderr.strip()
+            if "GraphQL: Pull request Protected branch rules not configured" in error_message:
+                print(f"Failed to merge PR #{pr_number}. The branch is protected. Please check the branch protection rules.")
+            else:
+                print(f"Failed to merge PR #{pr_number}. Error: {merge_pr_process.stderr}")
 
 
 
