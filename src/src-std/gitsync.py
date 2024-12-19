@@ -56,7 +56,7 @@ def update_repositories(base_path):
                 else:
                     print(f"Failed to update repository. Error: {process.stderr}\n")
 
-def find_and_create_pr(base_path):
+def find_and_create_pr(base_path, default_base_branch="main"):
     for root, dirs, _ in os.walk(base_path):
         for d in dirs:
             repo_path = os.path.join(root, d)
@@ -71,23 +71,13 @@ def find_and_create_pr(base_path):
                     print(f"\nFailed to determine the current branch in {repo_path}. Skipping repository.")
                     continue
 
-                # Determine the default base branch (e.g., main or master)
-                base_branch_result = subprocess.run(["git", "remote", "show", "origin"], capture_output=True, text=True)
-                base_branch = None
-
-                if "HEAD branch" in base_branch_result.stdout:
-                    for line in base_branch_result.stdout.splitlines():
-                        if "HEAD branch:" in line:
-                            base_branch = line.split(":")[-1].strip()
-                            break
-
-                if not base_branch:
-                    print(f"\nFailed to determine the base branch in {repo_path}. Skipping repository.")
-                    continue
+                # Check the base branch (e.g., main or master)
+                base_branch = default_base_branch
 
                 # Check for differences with the base branch
                 diff_result = subprocess.run(["git", "log", f"origin/{base_branch}..{current_branch}"], capture_output=True, text=True)
                 if not diff_result.stdout.strip():
+                    print(f"No new commits to push for {repo_path}, skipping PR creation.")
                     continue  # No new commits, silently skip
 
                 # Check for open pull requests
@@ -95,7 +85,10 @@ def find_and_create_pr(base_path):
                 if "no open pull requests" in process.stdout.lower():
                     try:
                         # Create a new pull request
-                        create_pr_process = subprocess.run(["gh", "pr", "create", "--base", base_branch, "--head", current_branch, "--fill"], capture_output=True, text=True)
+                        create_pr_process = subprocess.run(
+                            ["gh", "pr", "create", "--base", base_branch, "--head", current_branch, "--fill"],
+                            capture_output=True, text=True
+                        )
                         if create_pr_process.returncode == 0:
                             print(f"\nPull request created successfully in {repo_path}.")
                             print(create_pr_process.stdout)
