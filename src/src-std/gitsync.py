@@ -81,7 +81,6 @@ def update_repositories(base_path):
                     print(f"Failed to update repository. Error: {process.stderr}\n")
 
 
-
 def find_and_create_pr(base_path):
     pr_created = False  # Flag to track if a PR was created
     repos_missing_commits = []  # Track repos that require commits before PR creation
@@ -175,31 +174,44 @@ def find_and_create_pr(base_path):
                                 print(f"Existing PR {pr_number} is {pr_status}. Creating a new PR.")
                             else:
                                 print(f"PR already exists for {repo_path}: {pr_url} (PR #{pr_number})")
-                                continue  # Skip creating a new PR if the current one is open
-                        else:
-                            print(f"Failed to get PR status for {repo_path}. Creating a new PR.")
+                                
+                                # Now, perform the merge if the PR is ready
+                                print(f"Attempting to merge PR #{pr_number}...")
+                                merge_result = subprocess.run(
+                                    ["gh", "pr", "merge", pr_number, "--merge"],
+                                    capture_output=True, text=True
+                                )
+
+                                if merge_result.returncode == 0:
+                                    print(f"PR #{pr_number} successfully merged into {default_branch}.")
+                                    pr_created = True
+                                    break  # Exit after the successful merge
+                                else:
+                                    print(f"Failed to merge PR #{pr_number} in {repo_path}. Error: {merge_result.stderr}")
+                                    continue  # Skip to the next repo if the merge fails
+
                     else:
                         # No PR exists, create a new one
                         print("No open PR found. Creating a new one.")
 
-                    try:
-                        # Create a new PR
-                        create_pr_process = subprocess.run(
-                            ["gh", "pr", "create", "--base", default_branch, "--head", current_branch, "--fill"],
-                            capture_output=True, text=True
-                        )
-                        if create_pr_process.returncode == 0:
-                            pr_number = create_pr_process.stdout.split()[0]
-                            pr_url = create_pr_process.stdout.split()[1] if len(create_pr_process.stdout.split()) > 1 else "No URL"
-                            print(f"Pull request successfully created for {repo_path}. PR #{pr_number}. URL: {pr_url}")
-                            pr_created = True
-                            break  # Only show the first repo with changes for PR creation
-                        else:
-                            print(f"Failed to create pull request in {repo_path}. Error: {create_pr_process.stderr}")
+                        try:
+                            # Create a new PR
+                            create_pr_process = subprocess.run(
+                                ["gh", "pr", "create", "--base", default_branch, "--head", current_branch, "--fill"],
+                                capture_output=True, text=True
+                            )
+                            if create_pr_process.returncode == 0:
+                                pr_number = create_pr_process.stdout.split()[0]
+                                pr_url = create_pr_process.stdout.split()[1] if len(create_pr_process.stdout.split()) > 1 else "No URL"
+                                print(f"Pull request successfully created for {repo_path}. PR #{pr_number}. URL: {pr_url}")
+                                pr_created = True
+                                break  # Only show the first repo with changes for PR creation
+                            else:
+                                print(f"Failed to create pull request in {repo_path}. Error: {create_pr_process.stderr}")
+                                break  # Exit after the first failed attempt
+                        except subprocess.CalledProcessError as e:
+                            print(f"Error while creating pull request in {repo_path}: {e}")
                             break  # Exit after the first failed attempt
-                    except subprocess.CalledProcessError as e:
-                        print(f"Error while creating pull request in {repo_path}: {e}")
-                        break  # Exit after the first failed attempt
                 else:
                     print(f"No new commits detected for {repo_path} between {current_branch} and origin/{default_branch}. Skipping PR creation.")
 
@@ -217,7 +229,6 @@ def find_and_create_pr(base_path):
         print("\nNo pull requests were created. Check the repository status for possible issues.")
     else:
         print("\nPull request was created for the repository with changes.")
-
 
 
 
