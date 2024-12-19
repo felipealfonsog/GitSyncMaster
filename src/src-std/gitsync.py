@@ -90,6 +90,7 @@ def update_repositories(base_path):
 
 
 
+
 def find_and_create_pr(base_path):
     pr_created = False  # Flag to track if a PR was created
     pr_number = None  # Store the PR number to merge it later
@@ -179,11 +180,14 @@ def find_and_create_pr(base_path):
                                 pr_url = create_pr_process.stdout.split()[1] if len(create_pr_process.stdout.split()) > 1 else "No URL"
                                 print(f"Pull request successfully created for {repo_path}. PR #{pr_number}. URL: {pr_url}")
                                 pr_created = True
-                                # Merge the PR right after it is created
+                                
+                                # Automatically merge the PR after creation
+                                print(f"Attempting to merge PR #{pr_number} into {default_branch}...")
                                 merge_pr_process = subprocess.run(
                                     ["gh", "pr", "merge", pr_number, "--merge", "--auto"],
                                     capture_output=True, text=True
                                 )
+                                
                                 if merge_pr_process.returncode == 0:
                                     print(f"PR #{pr_number} successfully merged into {default_branch}.")
                                 else:
@@ -216,7 +220,6 @@ def find_and_create_pr(base_path):
         print("\nNo pull requests were created. Check the repository status for possible issues.")
     else:
         print("\nPull request was created and merged successfully.")
-
 
 
 
