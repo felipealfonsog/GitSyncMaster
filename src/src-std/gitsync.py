@@ -48,44 +48,28 @@ def check_repositories(base_path, exclude_suffix="-aur"):
         for d in dirs:
             repo_path = os.path.join(root, d)
             if os.path.isdir(os.path.join(repo_path, ".git")):
-                print(f"\nChecking repository: {repo_path}")
                 os.chdir(repo_path)
 
-                # Check the status of the repository to detect changes
                 status = subprocess.run(["git", "status", "--short"], capture_output=True, text=True)
                 if status.stdout.strip():
-                    print(f"Changes detected in repository: {repo_path}")
+                    print(f"\nChanges detected in repository: {repo_path}")
                     commit_msg = input("Enter commit message (default is 'Updates'): ").strip() or "Updates"
                     try:
-                        # Stage all changes
                         subprocess.run(["git", "add", "-A"], check=True)
-                        print(f"Changes staged in {repo_path}")
-
-                        # Commit the changes
                         subprocess.run(["git", "commit", "-m", commit_msg], check=True)
-                        print(f"Committed changes in {repo_path} with message: {commit_msg}")
 
                         # Get the current branch name
-                        branch_result = subprocess.run(
-                            ["git", "branch", "--show-current"], capture_output=True, text=True, check=True
-                        )
+                        branch_result = subprocess.run(["git", "branch", "--show-current"], capture_output=True, text=True, check=True)
                         current_branch = branch_result.stdout.strip()
-                        print(f"Current branch: {current_branch}")
 
-                        # Push the changes to the remote repository
-                        push_result = subprocess.run(
-                            ["git", "push", "origin", current_branch], capture_output=True, text=True, check=True
-                        )
-                        if push_result.returncode == 0:
-                            print(f"Changes pushed successfully to {repo_path}\n")
-                        else:
-                            print(f"Error while pushing to {repo_path}: {push_result.stderr}\n")
+                        # Push to the current branch
+                        subprocess.run(["git", "push", "origin", current_branch], check=True)
+                        print(f"Changes pushed to repository: {repo_path}\n")
 
                     except subprocess.CalledProcessError as e:
-                        print(f"Error while committing or pushing changes in {repo_path}: {e.stderr}\n")
+                        print(f"Error while pushing changes in {repo_path}: {e}\n")
                 else:
-                    print(f"No changes detected in {repo_path}, skipping commit and push.\n")
-
+                    pass  # No changes detected, skip output
 
 def update_repositories(base_path):
     for root, dirs, _ in os.walk(base_path):
