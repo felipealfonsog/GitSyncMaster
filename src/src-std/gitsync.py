@@ -57,8 +57,10 @@ def update_repositories(base_path):
                     print(f"Failed to update repository. Error: {process.stderr}\n")
 
 
+
 def find_and_create_pr(base_path):
     pr_created = False  # Flag to track if a PR was created
+    repos_missing_commits = []  # Track repos that require commits before PR creation
 
     for root, dirs, _ in os.walk(base_path):
         for d in dirs:
@@ -128,7 +130,10 @@ def find_and_create_pr(base_path):
                             capture_output=True, text=True
                         )
                         if create_pr_process.returncode == 0:
-                            print(f"Pull request successfully created for {repo_path}.")
+                            # Extract PR details like number and URL
+                            pr_number = create_pr_process.stdout.split()[0]
+                            pr_url = create_pr_process.stdout.split()[1] if len(create_pr_process.stdout.split()) > 1 else "No URL"
+                            print(f"Pull request successfully created for {repo_path}. PR #{pr_number}. URL: {pr_url}")
                             pr_created = True
                         else:
                             print(f"Failed to create pull request in {repo_path}. Error: {create_pr_process.stderr}")
@@ -137,10 +142,21 @@ def find_and_create_pr(base_path):
                 else:
                     print(f"No new commits detected for {repo_path} between {current_branch} and origin/{default_branch}. Skipping PR creation.")
 
+                # Handle repos that require a commit before PR
+                if not diff_result.stdout.strip():
+                    repos_missing_commits.append(repo_path)
+
+    # Output missing commit repositories
+    if repos_missing_commits:
+        print("\nThe following repositories require commits before creating a PR:")
+        for repo in repos_missing_commits:
+            print(f"- {repo}")
+    
     if not pr_created:
         print("\nNo pull requests were created. Check the repository status for possible issues.")
     else:
         print("\nPull requests were created for the repositories with changes.")
+
 
 
 
