@@ -17,28 +17,37 @@ def check_repositories(base_path, exclude_suffix="-aur"):
         for d in dirs:
             repo_path = os.path.join(root, d)
             if os.path.isdir(os.path.join(repo_path, ".git")):
+                print(f"\nChecking repository at {repo_path}")
                 os.chdir(repo_path)
 
+                # Get git status
                 status = subprocess.run(["git", "status", "--short"], capture_output=True, text=True)
-                if status.stdout.strip():
-                    print(f"\nChanges detected in repository: {repo_path}")
+                print(f"Git status for {repo_path}:\n{status.stdout}")
+
+                if status.stdout.strip():  # There are changes
+                    print(f"Changes detected in repository: {repo_path}")
                     commit_msg = input("Enter commit message (default is 'Updates'): ").strip() or "Updates"
                     try:
                         subprocess.run(["git", "add", "-A"], check=True)
-                        subprocess.run(["git", "commit", "-m", commit_msg], check=True)
+                        commit_result = subprocess.run(["git", "commit", "-m", commit_msg], capture_output=True, text=True, check=True)
+                        print(f"Commit result: {commit_result.stdout}")
 
                         # Get the current branch name
                         branch_result = subprocess.run(["git", "branch", "--show-current"], capture_output=True, text=True, check=True)
                         current_branch = branch_result.stdout.strip()
+                        print(f"Current branch: {current_branch}")
 
                         # Push to the current branch
-                        subprocess.run(["git", "push", "origin", current_branch], check=True)
-                        print(f"Changes pushed to repository: {repo_path}\n")
+                        push_result = subprocess.run(["git", "push", "origin", current_branch], capture_output=True, text=True)
+                        if push_result.returncode == 0:
+                            print(f"Changes pushed to repository: {repo_path}\n")
+                        else:
+                            print(f"Error pushing changes in {repo_path}: {push_result.stderr}\n")
 
                     except subprocess.CalledProcessError as e:
                         print(f"Error while pushing changes in {repo_path}: {e}\n")
                 else:
-                    pass  # No changes detected, skip output
+                    print(f"No changes detected in repository: {repo_path}\n")
 
 def update_repositories(base_path):
     for root, dirs, _ in os.walk(base_path):
@@ -57,8 +66,8 @@ def update_repositories(base_path):
                     print(f"Failed to update repository. Error: {process.stderr}\n")
 
 def find_and_create_pr(base_path):
-    pr_created = False  # Flag to track if a PR was created
-    repositories_with_pr = []  # List to store repositories that need PR creation
+    pr_created = False
+    repositories_with_pr = []
 
     for root, dirs, _ in os.walk(base_path):
         for d in dirs:
@@ -66,7 +75,6 @@ def find_and_create_pr(base_path):
             if os.path.isdir(os.path.join(repo_path, ".git")):
                 os.chdir(repo_path)
 
-                # Get the current branch name
                 branch_result = subprocess.run(["git", "branch", "--show-current"], capture_output=True, text=True)
                 current_branch = branch_result.stdout.strip()
 
@@ -74,7 +82,6 @@ def find_and_create_pr(base_path):
                     print(f"\nFailed to determine the current branch in {repo_path}. Skipping repository.")
                     continue
 
-                # Determine the default base branch (e.g., main or master)
                 base_branch_result = subprocess.run(["git", "remote", "show", "origin"], capture_output=True, text=True)
                 base_branch = None
 
@@ -88,20 +95,17 @@ def find_and_create_pr(base_path):
                     print(f"\nFailed to determine the base branch in {repo_path}. Skipping repository.")
                     continue
 
-                # Check for differences with the base branch
                 diff_result = subprocess.run(["git", "log", f"origin/{base_branch}..{current_branch}"], capture_output=True, text=True)
                 if not diff_result.stdout.strip():
                     print(f"\nNo new commits to push for {repo_path}. Skipping PR creation.")
-                    continue  # No new commits, silently skip
+                    continue
 
-                # Add to the list of repositories needing a PR
                 repositories_with_pr.append(repo_path)
 
     if repositories_with_pr:
         for repo in repositories_with_pr:
             print(f"\nPR Creation needed for repository: {repo}")
             try:
-                # Create a new pull request if no PR is already open
                 create_pr_process = subprocess.run(
                     ["gh", "pr", "create", "--base", base_branch, "--head", current_branch, "--fill"],
                     capture_output=True, text=True
