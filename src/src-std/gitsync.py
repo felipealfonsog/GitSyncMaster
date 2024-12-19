@@ -57,63 +57,70 @@ def update_repositories(base_path):
                     print(f"Failed to update repository. Error: {process.stderr}\n")
 
 
-
 def find_and_create_pr(base_path):
     pr_created = False  # Flag to track if a PR was created
-    repositories_with_pr = []  # List to store repositories that need PR creation
 
     for root, dirs, _ in os.walk(base_path):
         for d in dirs:
             repo_path = os.path.join(root, d)
             if os.path.isdir(os.path.join(repo_path, ".git")):
+                print(f"\nChecking repository: {repo_path}")
                 os.chdir(repo_path)
 
                 # Get the current branch name
                 branch_result = subprocess.run(["git", "branch", "--show-current"], capture_output=True, text=True)
+                if branch_result.returncode != 0:
+                    print(f"Failed to get the current branch for {repo_path}. Skipping.")
+                    continue
                 current_branch = branch_result.stdout.strip()
 
                 if not current_branch:
-                    print(f"\nFailed to determine the current branch in {repo_path}. Skipping repository.")
+                    print(f"Could not determine the current branch in {repo_path}. Skipping.")
                     continue
 
-                # Fetch the latest changes from the remote repository
+                print(f"Current branch: {current_branch}")
+
+                # Fetch the latest updates from the remote repository
                 fetch_result = subprocess.run(["git", "fetch"], capture_output=True, text=True)
                 if fetch_result.returncode != 0:
                     print(f"Failed to fetch updates for {repo_path}. Error: {fetch_result.stderr}")
-                    continue  # Skip creating PR if fetch failed
+                    continue
 
-                # Check if there are any new commits between local and remote branch
+                print(f"Fetching updates for {repo_path}...")
+
+                # Check for differences between local and remote branch
                 diff_result = subprocess.run(
                     ["git", "log", f"origin/{current_branch}..{current_branch}", "--oneline"],
                     capture_output=True, text=True
                 )
                 if diff_result.returncode != 0:
-                    print(f"Failed to check differences in {repo_path}. Error: {diff_result.stderr}")
-                    continue  # Skip if error in checking diff
+                    print(f"Error comparing branches in {repo_path}. Error: {diff_result.stderr}")
+                    continue
 
                 if diff_result.stdout.strip():
-                    # New commits detected, proceed with PR creation
-                    print(f"\nPR Creation needed for repository: {repo_path}")
+                    print(f"New commits detected in {repo_path}. Proceeding to create PR.")
+                    
+                    # Create a new pull request using the GitHub CLI (gh)
                     try:
-                        # Create a new pull request using the GitHub CLI (gh)
                         create_pr_process = subprocess.run(
                             ["gh", "pr", "create", "--base", "main", "--head", current_branch, "--fill"],
                             capture_output=True, text=True
                         )
                         if create_pr_process.returncode == 0:
-                            print(f"Pull request created successfully in {repo_path}.")
+                            print(f"Pull request successfully created for {repo_path}.")
                             pr_created = True
                         else:
                             print(f"Failed to create pull request in {repo_path}. Error: {create_pr_process.stderr}")
                     except subprocess.CalledProcessError as e:
                         print(f"Error while creating pull request in {repo_path}: {e}")
                 else:
-                    print(f"\nNo new commits between {current_branch} and origin/{current_branch} in {repo_path}. Skipping PR creation.")
+                    print(f"No new commits detected for {repo_path} between {current_branch} and origin/{current_branch}. Skipping PR creation.")
 
     if not pr_created:
-        print("\nNo repositories had changes that required a pull request.")
+        print("\nNo pull requests were created. Check the repository status for possible issues.")
     else:
         print("\nPull requests were created for the repositories with changes.")
+
 
 
 def main():
