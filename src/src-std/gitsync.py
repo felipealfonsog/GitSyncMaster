@@ -81,6 +81,7 @@ def update_repositories(base_path):
                     print(f"Failed to update repository. Error: {process.stderr}\n")
 
 
+
 def find_and_create_pr(base_path):
     pr_created = False  # Flag to track if a PR was created
     repos_missing_commits = []  # Track repos that require commits before PR creation
@@ -93,7 +94,9 @@ def find_and_create_pr(base_path):
                 os.chdir(repo_path)
 
                 # Get the current branch name
-                branch_result = subprocess.run(["git", "branch", "--show-current"], capture_output=True, text=True)
+                branch_result = subprocess.run(
+                    ["git", "branch", "--show-current"], capture_output=True, text=True
+                )
                 if branch_result.returncode != 0:
                     print(f"Failed to get the current branch for {repo_path}. Skipping.")
                     continue
@@ -113,15 +116,15 @@ def find_and_create_pr(base_path):
 
                 print(f"Fetching updates for {repo_path}...")
 
-                # Check if the repository uses 'main' or 'master' as the default branch
+                # Get the default branch from the remote repository
                 default_branch_result = subprocess.run(
                     ["git", "remote", "show", "origin"], capture_output=True, text=True
                 )
                 if default_branch_result.returncode != 0:
                     print(f"Failed to get the default branch for {repo_path}. Skipping.")
                     continue
-                
-                # Extract the default branch name (main or master)
+
+                # Extract the default branch (main or master)
                 default_branch = None
                 for line in default_branch_result.stdout.splitlines():
                     if "HEAD branch" in line:
@@ -134,7 +137,7 @@ def find_and_create_pr(base_path):
 
                 print(f"Default branch: {default_branch}")
 
-                # Check for differences between local and remote branch using git diff
+                # Check for differences between local and remote branches using git diff
                 diff_result = subprocess.run(
                     ["git", "diff", f"origin/{default_branch}..{current_branch}"],
                     capture_output=True, text=True
@@ -145,13 +148,13 @@ def find_and_create_pr(base_path):
 
                 if diff_result.stdout.strip():
                     print(f"New commits detected in {repo_path}. Proceeding to create PR.")
-                    
+
                     # Check if the PR already exists using GitHub API (gh)
                     pr_check_result = subprocess.run(
                         ["gh", "pr", "list", "--head", current_branch, "--state", "open"],
                         capture_output=True, text=True
                     )
-                    
+
                     if pr_check_result.returncode == 0 and pr_check_result.stdout.strip():
                         # PR exists, show details
                         pr_url = pr_check_result.stdout.strip().split("\n")[0].split()[1]
@@ -188,12 +191,11 @@ def find_and_create_pr(base_path):
         print("\nThe following repositories require commits before creating a PR:")
         for repo in repos_missing_commits:
             print(f"- {repo}")
-    
+
     if not pr_created:
         print("\nNo pull requests were created. Check the repository status for possible issues.")
     else:
         print("\nPull request was created for the repository with changes.")
-
 
 
 
