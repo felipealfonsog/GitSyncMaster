@@ -119,6 +119,7 @@ def find_and_create_pr(base_path):
     else:
         print("\nPull requests were created for the repositories with changes.")
 
+
 def main():
     print_header()
     base_path = os.getcwd()
@@ -158,3 +159,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
