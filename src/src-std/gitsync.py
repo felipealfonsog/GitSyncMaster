@@ -88,9 +88,30 @@ def find_and_create_pr(base_path):
 
                 print(f"Fetching updates for {repo_path}...")
 
-                # Check for differences between local and remote branch
+                # Check if the repository uses 'main' or 'master' as the default branch
+                default_branch_result = subprocess.run(
+                    ["git", "remote", "show", "origin"], capture_output=True, text=True
+                )
+                if default_branch_result.returncode != 0:
+                    print(f"Failed to get the default branch for {repo_path}. Skipping.")
+                    continue
+                
+                # Extract the default branch name (main or master)
+                default_branch = None
+                for line in default_branch_result.stdout.splitlines():
+                    if "HEAD branch" in line:
+                        default_branch = line.split(":")[1].strip()
+                        break
+
+                if not default_branch:
+                    print(f"Could not determine the default branch for {repo_path}. Skipping.")
+                    continue
+
+                print(f"Default branch: {default_branch}")
+
+                # Check for differences between local and remote branch using git diff
                 diff_result = subprocess.run(
-                    ["git", "log", f"origin/{current_branch}..{current_branch}", "--oneline"],
+                    ["git", "diff", f"origin/{default_branch}..{current_branch}"],
                     capture_output=True, text=True
                 )
                 if diff_result.returncode != 0:
@@ -103,7 +124,7 @@ def find_and_create_pr(base_path):
                     # Create a new pull request using the GitHub CLI (gh)
                     try:
                         create_pr_process = subprocess.run(
-                            ["gh", "pr", "create", "--base", "main", "--head", current_branch, "--fill"],
+                            ["gh", "pr", "create", "--base", default_branch, "--head", current_branch, "--fill"],
                             capture_output=True, text=True
                         )
                         if create_pr_process.returncode == 0:
@@ -114,7 +135,7 @@ def find_and_create_pr(base_path):
                     except subprocess.CalledProcessError as e:
                         print(f"Error while creating pull request in {repo_path}: {e}")
                 else:
-                    print(f"No new commits detected for {repo_path} between {current_branch} and origin/{current_branch}. Skipping PR creation.")
+                    print(f"No new commits detected for {repo_path} between {current_branch} and origin/{default_branch}. Skipping PR creation.")
 
     if not pr_created:
         print("\nNo pull requests were created. Check the repository status for possible issues.")
