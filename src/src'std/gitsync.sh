@@ -5,17 +5,16 @@ def print_header():
     print("""
     ==========================================================
 
-        .-. .-.,---.  ,'|"\8    .--.  ,-.    ,-.     
-        | | | || .-.\ | |\ \   / /\ \ | |    | |     
-        | | | || |-' )| | \ \ / /__\ \| |    | |     
-        | | | || |--' | |  \ \|  __  || |    | |     
-        | `-')|| |    /(|`-' /| |  |)|| `--. | `--.  
-        `---(_)/(    (__)`--' |_|  (_)|( __.'|( __.' 
-            (__)                    (_)    (_)     
+                .__  __                               
+        ____ |__|/  |_  _________.__. ____   ____  
+        / ___\|  \   __\/  ___<   |  |/    \_/ ___\ 
+        / /_/  >  ||  |  \___ \ \___  |   |  \  \___ 
+        \___  /|__||__| /____  >/ ____|___|  /\___  >
+        /_____/               \/ \/         \/     \/ 
 
     ==========================================================
     
-    Upd8all: A tool to automate the process of checking and 
+    Gitsync: A tool to automate the process of checking and 
     creating pull requests for Git repositories with a simple 
     interface and improved functionality.
 
@@ -88,10 +87,13 @@ def update_repositories(base_path):
                     print(f"Failed to update repository. Error: {process.stderr}\n")
 
 
+<<<<<<< HEAD
 
 import subprocess
 import os
 
+=======
+>>>>>>> main
 def find_and_create_pr(base_path):
     pr_created = False  # Flag to track if a PR was created
     pr_number = None  # Store the PR number to merge it later
