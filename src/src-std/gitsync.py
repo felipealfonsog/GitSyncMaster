@@ -1,134 +1,160 @@
 import os
-import platform
+import subprocess
 
-def welcome():
-    if platform.system() == 'Darwin':
-        print("\033[1;32mWelcome to GitHub Repository Updater -GitSyncMaster-!\033[0m")
-        print("\033[1;32mThis software was developed by Computer Science Engineer Felipe Alfonso González - Github: github.com/felipealfonsog - Under the BSD 3-clause license.\033[0m")
-        print("\033[1;32mDeveloped from Chile with love.\033[0m")
-        print("\033[1;32m----------------------------------------------------\033[0m")
-        print("\033[1;32m\033[1mEffortlessly Automate Git Repository Updates, Including Committing and Pulling, Across Directory Structures.\033[0m")
-    else:
-        print("Welcome to GitHub Repository Updater -GitSyncMaster-!")
-        print("This software was developed by Computer Science Engineer Felipe Alfonso González - Github: github.com/felipealfonsog - Under the BSD 3-clause license.")
-        print("Developed from Chile with love.")
-        print("----------------------------------------------------")
-        print("Effortlessly Automate Git Repository Updates, Including Committing and Pulling, Across Directory Structures.")
+def print_header():
+    print("\n=== Repository Manager ===\n")
 
-def update_github_repositories(main_directory, include_aur):
-    print("\nUpdating GitHub repositories...\n")
-    found_repos = False
-    for root, dirs, files in os.walk(main_directory):
-        if '.git' in dirs:
-            found_repos = True
-            git_dir = os.path.join(root, '.git')
-            if os.path.isdir(git_dir):
-                if include_aur or not root.endswith("-aur"):
-                    os.chdir(root)
-                    changes = os.popen('git status --porcelain').read().strip()
-                    if changes:
-                        print(f"Repository in {root} requires a commit before updating.")
-                        try:
-                            result = os.system('git pull')
-                            if result == 0:
-                                print("Repository updated successfully.")
-                            else:
-                                print("Error updating repository.")
-                        except Exception as e:
-                            print(f"Error updating repository: {e}")
-                    else:
-                        print(f"Updating repository in {root}")
-                        try:
-                            result = os.system('git pull')
-                            if result == 0:
-                                print("Repository updated successfully.")
-                            else:
-                                print("Error updating repository.")
-                        except Exception as e:
-                            print(f"Error updating repository: {e}")
-                    os.chdir(main_directory)
-    if not found_repos:
-        print("No GitHub repositories found in the current directory or its subdirectories. Exiting.")
-        exit()
+def print_credits():
+    print("By Computer Science Engineer Felipe Alfonso González")
+    print("GitHub: https://github.com/felipealfonsog/")
+    print("LinkedIn: https://www.linkedin.com/in/felipealfonso/")
+    print("Twitter: https://twitter.com/felipealfonsog/")
+    print("License: BSD 3-Clause License\n")
 
-def check_repos(main_directory):
-    print("\nChecking for repositories requiring actions...\n")
-    repos_needing_action = []
-    for root, dirs, _ in os.walk(main_directory):
-        for dir in dirs:
-            repo_path = os.path.join(root, dir)
-            git_dir = os.path.join(repo_path, '.git')
-            if os.path.isdir(git_dir):
+def check_repositories(base_path, exclude_suffix="-aur"):
+    for root, dirs, _ in os.walk(base_path):
+        dirs[:] = [d for d in dirs if not d.endswith(exclude_suffix)]
+        for d in dirs:
+            repo_path = os.path.join(root, d)
+            if os.path.isdir(os.path.join(repo_path, ".git")):
                 os.chdir(repo_path)
-                changes = os.popen('git status --porcelain').read().strip()
-                if changes:
-                    repos_needing_action.append(repo_path)
-                os.chdir(main_directory)
 
-    if repos_needing_action:
-        print("The following repositories require actions:")
-        for repo in repos_needing_action:
-            print(repo)
-        return repos_needing_action
+                status = subprocess.run(["git", "status", "--short"], capture_output=True, text=True)
+                if status.stdout.strip():
+                    print(f"\nChanges detected in repository: {repo_path}")
+                    commit_msg = input("Enter commit message (default is 'Updates'): ").strip() or "Updates"
+                    try:
+                        subprocess.run(["git", "add", "-A"], check=True)
+                        subprocess.run(["git", "commit", "-m", commit_msg], check=True)
+
+                        # Get the current branch name
+                        branch_result = subprocess.run(["git", "branch", "--show-current"], capture_output=True, text=True, check=True)
+                        current_branch = branch_result.stdout.strip()
+
+                        # Push to the current branch
+                        subprocess.run(["git", "push", "origin", current_branch], check=True)
+                        print(f"Changes pushed to repository: {repo_path}\n")
+
+                    except subprocess.CalledProcessError as e:
+                        print(f"Error while pushing changes in {repo_path}: {e}\n")
+                else:
+                    pass  # No changes detected, skip output
+
+def update_repositories(base_path):
+    for root, dirs, _ in os.walk(base_path):
+        for d in dirs:
+            repo_path = os.path.join(root, d)
+            if os.path.isdir(os.path.join(repo_path, ".git")):
+                print(f"\nUpdating repository in {repo_path}...")
+                os.chdir(repo_path)
+
+                process = subprocess.run(["git", "pull"], capture_output=True, text=True)
+                print(process.stdout)
+
+                if process.returncode == 0:
+                    print("Repository updated successfully.\n")
+                else:
+                    print(f"Failed to update repository. Error: {process.stderr}\n")
+
+def find_and_create_pr(base_path):
+    pr_created = False  # Flag to track if a PR was created
+    repositories_with_pr = []  # List to store repositories that need PR creation
+
+    for root, dirs, _ in os.walk(base_path):
+        for d in dirs:
+            repo_path = os.path.join(root, d)
+            if os.path.isdir(os.path.join(repo_path, ".git")):
+                os.chdir(repo_path)
+
+                # Get the current branch name
+                branch_result = subprocess.run(["git", "branch", "--show-current"], capture_output=True, text=True)
+                current_branch = branch_result.stdout.strip()
+
+                if not current_branch:
+                    print(f"\nFailed to determine the current branch in {repo_path}. Skipping repository.")
+                    continue
+
+                # Determine the default base branch (e.g., main or master)
+                base_branch_result = subprocess.run(["git", "remote", "show", "origin"], capture_output=True, text=True)
+                base_branch = None
+
+                if "HEAD branch" in base_branch_result.stdout:
+                    for line in base_branch_result.stdout.splitlines():
+                        if "HEAD branch:" in line:
+                            base_branch = line.split(":")[-1].strip()
+                            break
+
+                if not base_branch:
+                    print(f"\nFailed to determine the base branch in {repo_path}. Skipping repository.")
+                    continue
+
+                # Check for differences with the base branch
+                diff_result = subprocess.run(["git", "log", f"origin/{base_branch}..{current_branch}"], capture_output=True, text=True)
+                if not diff_result.stdout.strip():
+                    print(f"\nNo new commits to push for {repo_path}. Skipping PR creation.")
+                    continue  # No new commits, silently skip
+
+                # Add to the list of repositories needing a PR
+                repositories_with_pr.append(repo_path)
+
+    if repositories_with_pr:
+        for repo in repositories_with_pr:
+            print(f"\nPR Creation needed for repository: {repo}")
+            try:
+                # Create a new pull request if no PR is already open
+                create_pr_process = subprocess.run(
+                    ["gh", "pr", "create", "--base", base_branch, "--head", current_branch, "--fill"],
+                    capture_output=True, text=True
+                )
+                if create_pr_process.returncode == 0:
+                    print(f"Pull request created successfully in {repo}.")
+                    pr_created = True
+                else:
+                    print(f"Failed to create pull request in {repo}. Error: {create_pr_process.stderr}")
+            except subprocess.CalledProcessError as e:
+                print(f"Error while creating pull request in {repo}: {e}")
+
+    if not pr_created:
+        print("\nNo repositories had changes that required a pull request.")
     else:
-        print("No repositories require actions.")
-        return []
+        print("\nPull requests were created for the repositories with changes.")
 
 def main():
-    welcome()
-    current_directory = os.getcwd()
-    if not any('.git' in root for root, _, _ in os.walk(current_directory)):
-        print("You need to be inside a directory with GitHub repositories to update them.")
-        exit()
+    print_header()
+    base_path = os.getcwd()
 
-    choice = input("Choose an option:\n1. Check repositories requiring actions.\n2. Update repositories.\nEnter option number (default is 2): ").strip() or '2'
-    if choice == '1':
-        repos = check_repos(current_directory)
-        if repos:
-            proceed = input("Do you want to proceed with the action? (Y/n): ").lower()
-            if proceed not in ['', 'y']:
-                print("Action aborted.")
-                exit()
-            
-            for repo_path in repos:
-                os.chdir(repo_path)
-                changes = os.popen('git status --porcelain').read().strip()
-                print(f"Repository: {repo_path}\nChanges:\n{changes}")
-                stage_choice = input("Do you want to stage these changes for commit? (Y/n): ").lower()
-                if stage_choice in ['', 'y']:
-                    os.system('git add .')
-                    commit_message = input("Enter commit message: ")
-                    os.system(f'git commit -m "{commit_message}"')
-                    push_choice = input("Do you want to push these changes? (Y/n): ").lower()
-                    if push_choice in ['', 'y']:
-                        os.system('git push')
-                    else:
-                        print("Push aborted.")
-                else:
-                    print("Staging aborted.")
-                os.chdir(current_directory)
-        else:
-            print("No repositories require actions.")
-    elif choice == '2':
-        abort_choice = input("Do you want to abort the process? (Press Enter for No, Y for Yes default is No): ").lower() or 'n'
-        if abort_choice == 'y':
-            print("Operation aborted.")
-            exit()
+    while True:
+        print("\nOptions:")
+        print("1. Check repositories and push changes")
+        print("2. Update repositories")
+        print("3. Find and create pull requests")
+        print("4. Show credits")
+        print("5. Exit")
 
-        main_directory = input("Do you want to update repositories here? (Press Enter for Yes, No for cancel, default is Yes): ")
-        if main_directory.lower() == '' or main_directory.lower() == 'y':
-            exclude_choice = input("Do you want to exclude directories with the '-aur' suffix? (Press Enter for Yes, N for No, default is Yes): ").lower() or 'y'
-            if exclude_choice == 'y':
-                include_aur = False
+        option = input("Enter option number (default is 2): ").strip() or "2"
+
+        if option == "1":
+            exclude_dirs = input("Do you want to exclude directories with the '-aur' suffix? (Press Enter for Yes, N for No, default is Yes): ").strip().lower()
+            if exclude_dirs != "n":
+                check_repositories(base_path)
             else:
-                include_aur = True
-            update_github_repositories(current_directory, include_aur)
+                check_repositories(base_path, exclude_suffix="")
+
+        elif option == "2":
+            update_repositories(base_path)
+
+        elif option == "3":
+            find_and_create_pr(base_path)
+
+        elif option == "4":
+            print_credits()
+
+        elif option == "5":
+            print("Exiting program. Goodbye!")
+            break
+
         else:
-            print("You need to be inside a directory with GitHub repositories to update them.")
-            exit()
-    else:
-        print("Invalid option. Exiting.")
-        exit()
+            print("Invalid option. Please try again.")
 
 if __name__ == "__main__":
     main()
