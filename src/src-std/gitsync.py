@@ -90,7 +90,6 @@ def update_repositories(base_path):
 
 
 
-
 def find_and_create_pr(base_path):
     pr_created = False  # Flag to track if a PR was created
     repos_missing_commits = []  # Track repos that require commits before PR creation
@@ -167,8 +166,20 @@ def find_and_create_pr(base_path):
                         pr_url = pr_check_result.stdout.strip().split("\n")[0].split()[1]
                         pr_number = pr_check_result.stdout.strip().split("\n")[0].split()[0]
                         print(f"PR already exists for {repo_path}: {pr_url} (PR #{pr_number})")
+
+                        # Attempt to merge the existing PR
+                        print(f"Attempting to merge PR #{pr_number} into {default_branch}...")
+                        merge_pr_process = subprocess.run(
+                            ["gh", "pr", "merge", pr_number, "--merge", "--auto"],
+                            capture_output=True, text=True
+                        )
+                        if merge_pr_process.returncode == 0:
+                            print(f"PR #{pr_number} successfully merged into {default_branch}.")
+                        else:
+                            print(f"Failed to merge PR #{pr_number}. Error: {merge_pr_process.stderr}")
+
                     else:
-                        # Force create a new PR without checking the diff
+                        # Create new PR if it doesn't exist
                         try:
                             create_pr_process = subprocess.run(
                                 ["gh", "pr", "create", "--base", default_branch, "--head", current_branch, "--fill"],
@@ -241,7 +252,6 @@ def find_and_create_pr(base_path):
         print("\nNo pull requests were created. Check the repository status for possible issues.")
     else:
         print("\nPull request was created for the repository with changes.")
-
 
 
 
