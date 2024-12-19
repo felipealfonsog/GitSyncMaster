@@ -51,6 +51,13 @@ These new features aim to enhance the usability, functionality, and overall expe
 
 [![View Screenshots](https://img.shields.io/badge/View-Screenshots-yellow)](#)
 
+#### Screenshot Standard features in Python
+
+<p align="center">
+  <img src="./images/std-gitsync.png" alt="Screenshot" width="400" height="350">
+</p>
+
+<!-- 
 #### Screenshot macOS
 
 <p align="center">
@@ -62,6 +69,8 @@ These new features aim to enhance the usability, functionality, and overall expe
 <p align="center">
   <img src="./images/sshot-linux.png" alt="Screenshot Linux" width="400" height="350">
 </p>
+
+-->
 
 #
 
