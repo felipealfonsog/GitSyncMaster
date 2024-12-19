@@ -5,17 +5,16 @@ def print_header():
     print("""
     ==========================================================
 
-        .-. .-.,---.  ,'|"\8    .--.  ,-.    ,-.     
-        | | | || .-.\ | |\ \   / /\ \ | |    | |     
-        | | | || |-' )| | \ \ / /__\ \| |    | |     
-        | | | || |--' | |  \ \|  __  || |    | |     
-        | `-')|| |    /(|`-' /| |  |)|| `--. | `--.  
-        `---(_)/(    (__)`--' |_|  (_)|( __.'|( __.' 
-            (__)                    (_)    (_)     
+                .__  __                               
+        ____ |__|/  |_  _________.__. ____   ____  
+        / ___\|  \   __\/  ___<   |  |/    \_/ ___\ 
+        / /_/  >  ||  |  \___ \ \___  |   |  \  \___ 
+        \___  /|__||__| /____  >/ ____|___|  /\___  >
+        /_____/               \/ \/         \/     \/ 
 
     ==========================================================
     
-    Upd8all: A tool to automate the process of checking and 
+    Gitsync: A tool to automate the process of checking and 
     creating pull requests for Git repositories with a simple 
     interface and improved functionality.
 
@@ -89,7 +88,6 @@ def update_repositories(base_path):
 
 
 
-
 def find_and_create_pr(base_path):
     pr_created = False  # Flag to track if a PR was created
     pr_number = None  # Store the PR number to merge it later
@@ -144,13 +142,13 @@ def find_and_create_pr(base_path):
 
                 print(f"Default branch: {default_branch}")
 
-                # Check for differences between local and remote branch using git diff
+                # Check if there are local commits that are not pushed yet
                 diff_result = subprocess.run(
-                    ["git", "diff", f"origin/{default_branch}..{current_branch}"],
+                    ["git", "log", f"origin/{default_branch}..{current_branch}", "--oneline"],
                     capture_output=True, text=True
                 )
                 if diff_result.returncode != 0:
-                    print(f"Error comparing branches in {repo_path}. Error: {diff_result.stderr}")
+                    print(f"Error checking commits for {repo_path}. Error: {diff_result.stderr}")
                     continue
 
                 if diff_result.stdout.strip():
@@ -285,7 +283,6 @@ def find_and_create_pr(base_path):
         print("\nNo pull requests were created. Check the repository status for possible issues.")
     else:
         print("\nPull request was created and attempted to merge successfully.")
-
 
 
 
