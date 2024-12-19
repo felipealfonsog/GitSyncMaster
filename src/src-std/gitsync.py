@@ -88,8 +88,8 @@ def update_repositories(base_path):
                     print(f"Failed to update repository. Error: {process.stderr}\n")
 
 
-
-
+import os
+import subprocess
 
 def find_and_create_pr(base_path):
     pr_created = False  # Flag to track if a PR was created
@@ -181,21 +181,25 @@ def find_and_create_pr(base_path):
                                 print(f"Pull request successfully created for {repo_path}. PR #{pr_number}. URL: {pr_url}")
                                 pr_created = True
                                 
-                                # Automatically merge the PR after creation
-                                print(f"Attempting to merge PR #{pr_number} into {default_branch}...")
-                                merge_pr_process = subprocess.run(
-                                    ["gh", "pr", "merge", pr_number, "--merge", "--auto"],
-                                    capture_output=True, text=True
-                                )
-                                
-                                if merge_pr_process.returncode == 0:
-                                    print(f"PR #{pr_number} successfully merged into {default_branch}.")
-                                else:
-                                    error_message = merge_pr_process.stderr.strip()
-                                    if "GraphQL: Pull request Protected branch rules not configured" in error_message:
-                                        print(f"Failed to merge PR #{pr_number}. The branch is protected. Please check the branch protection rules.")
+                                # Ensure pr_number is valid before merging
+                                if pr_number:
+                                    print(f"Attempting to merge PR #{pr_number} into {default_branch}...")
+
+                                    merge_pr_process = subprocess.run(
+                                        ["gh", "pr", "merge", pr_number, "--merge", "--auto"],
+                                        capture_output=True, text=True
+                                    )
+                                    
+                                    if merge_pr_process.returncode == 0:
+                                        print(f"PR #{pr_number} successfully merged into {default_branch}.")
                                     else:
+                                        error_message = merge_pr_process.stderr.strip()
                                         print(f"Failed to merge PR #{pr_number}. Error: {merge_pr_process.stderr}")
+                                        if "GraphQL: Pull request Protected branch rules not configured" in error_message:
+                                            print("It seems the branch is protected. Please check the branch protection rules.")
+                                        break  # Exit after the merge attempt
+                                else:
+                                    print(f"Invalid PR number: {pr_number}. Merge skipped.")
                                 break  # Exit after the PR is created and merged
                             else:
                                 print(f"Failed to create pull request in {repo_path}. Error: {create_pr_process.stderr}")
@@ -219,7 +223,8 @@ def find_and_create_pr(base_path):
     if not pr_created:
         print("\nNo pull requests were created. Check the repository status for possible issues.")
     else:
-        print("\nPull request was created and merged successfully.")
+        print("\nPull request was created and attempted to merge successfully.")
+
 
 
 
