@@ -115,39 +115,22 @@ install_dependencies_linux() {
     fi
 }
 
-
 download_source_code() {
-    if [[ $(uname) == "Darwin" ]]; then
-        source_file_url="https://raw.githubusercontent.com/felipealfonsog/GitSyncMaster/refs/heads/main/src/src-std/gitsync.py"
-        source_file_name="git_update_macos.py"
-    elif [[ $(uname) == "Linux" ]]; then
-        source_file_url="https://raw.githubusercontent.com/felipealfonsog/GitSyncMaster/refs/heads/main/src/src-std/gitsync.py"
-        source_file_name="git_update_linux.py"
-    else
-        echo "Unsupported operating system. Please install manually, read documentation, and re-run the installer."
-        exit 1
-    fi
+    source_file_url="https://raw.githubusercontent.com/felipealfonsog/GitSyncMaster/refs/heads/main/src/src-std/gitsync.py"
+    source_file_name="gitsync.py"
 
     curl -o "$source_file_name" "$source_file_url"
 }
-
-
 
 move_exec_file() {
     if [[ -f "$source_file_name" ]]; then
         # Transform the source file into an executable
         chmod +x "$source_file_name"
 
+        # Move the executable file to /usr/local/bin/
         if [[ $(uname) == "Darwin" ]]; then
-            # Move the executable file to /usr/local/bin/
             sudo cp "$source_file_name" /usr/local/bin/
-
-            # Assign execution permissions if gitsync doesn't exist in that location
-            if [[ ! -x /usr/local/bin/gitsync ]]; then
-                sudo chmod +x /usr/local/bin/gitsync
-            fi
         else
-            # Copy the source file to /bin directory of each distribution
             if [[ -f /etc/arch-release ]]; then
                 sudo cp "$source_file_name" /usr/bin/
             elif [[ -f /etc/debian_version ]]; then
@@ -155,32 +138,17 @@ move_exec_file() {
             else
                 sudo cp "$source_file_name" /usr/local/bin/
             fi
+        fi
 
-            # Move the executable file to the appropriate location
-            if [[ -f /etc/arch-release ]]; then
-                sudo mv "$source_file_name" /usr/bin/gitsync
-            elif [[ -f /etc/debian_version ]]; then
-                sudo mv "$source_file_name" /usr/local/bin/gitsync
-            else
-                sudo mv "$source_file_name" /usr/local/bin/gitsync
-            fi
-
-            # Assign execution permissions to the gitsync file if it already exists in any of those locations
-            if [[ -x /usr/bin/gitsync ]]; then
-                sudo chmod +x /usr/bin/gitsync
-            elif [[ -x /usr/local/bin/gitsync ]]; then
-                sudo chmod +x /usr/local/bin/gitsync
-            fi
+        # Assign execution permissions if gitsync doesn't exist in that location
+        if [[ ! -x /usr/local/bin/gitsync ]]; then
+            sudo chmod +x /usr/local/bin/gitsync
         fi
     else
         echo "Error: File $source_file_name not found."
         exit 1
     fi
 }
-
-
-
-
 
 configure_path() {
     if [[ $(uname) == "Darwin" ]]; then
@@ -229,9 +197,7 @@ cleanup() {
         rm "gitsync"
         echo "Installer binary has been deleted."
     fi
-
 }
-
 
 main() {
     welcome
