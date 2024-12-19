@@ -88,7 +88,13 @@ def find_and_create_pr(base_path):
                     print(f"\nFailed to determine the base branch in {repo_path}. Skipping repository.")
                     continue
 
-                # Check for differences with the base branch
+                # Push any local changes to the remote
+                push_result = subprocess.run(["git", "push", "origin", current_branch], capture_output=True, text=True)
+                if push_result.returncode != 0:
+                    print(f"Failed to push changes to {repo_path}. Error: {push_result.stderr}")
+                    continue  # Skip creating a PR if push failed
+
+                # Now we ensure we have differences between local and remote branches
                 diff_result = subprocess.run(["git", "log", f"origin/{base_branch}..{current_branch}"], capture_output=True, text=True)
                 if not diff_result.stdout.strip():
                     print(f"\nNo new commits to push for {repo_path}. Skipping PR creation.")
@@ -101,9 +107,9 @@ def find_and_create_pr(base_path):
         for repo in repositories_with_pr:
             print(f"\nPR Creation needed for repository: {repo}")
             try:
-                # Create a new pull request if no PR is already open
+                # Create a new pull request
                 create_pr_process = subprocess.run(
-                    ["gh", "pr", "create", "--base", base_branch, "--head", current_branch, "--fill"],
+                    ["gh", "pr", "create", "--base", base_branch, "--head", current_branch, "--title", "Update repository", "--body", "This pull request contains the latest changes from the local branch."],
                     capture_output=True, text=True
                 )
                 if create_pr_process.returncode == 0:
@@ -118,6 +124,7 @@ def find_and_create_pr(base_path):
         print("\nNo repositories had changes that required a pull request.")
     else:
         print("\nPull requests were created for the repositories with changes.")
+
 
 
 def main():
