@@ -2,7 +2,31 @@ import os
 import subprocess
 
 def print_header():
-    print("\n=== Repository Manager ===\n")
+    print("""
+    ==========================================================
+
+        .-. .-.,---.  ,'|"\8    .--.  ,-.    ,-.     
+        | | | || .-.\ | |\ \   / /\ \ | |    | |     
+        | | | || |-' )| | \ \ / /__\ \| |    | |     
+        | | | || |--' | |  \ \|  __  || |    | |     
+        | `-')|| |    /(|`-' /| |  |)|| `--. | `--.  
+        `---(_)/(    (__)`--' |_|  (_)|( __.'|( __.' 
+            (__)                    (_)    (_)     
+
+    ==========================================================
+    
+    Upd8all: A tool to automate the process of checking and 
+    creating pull requests for Git repositories with a simple 
+    interface and improved functionality.
+
+    License: BSD-3-Clause
+
+    Programmed with love in Chile by Felipe Alfonso González
+    Contact: f.alfonso@res-ear.ch
+    GitHub: github.com/felipealfonsog
+
+    ==========================================================
+    """)
 
 def print_credits():
     print("By Computer Science Engineer Felipe Alfonso González")
