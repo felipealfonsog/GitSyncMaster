@@ -58,6 +58,8 @@ def update_repositories(base_path):
 
 def find_and_create_pr(base_path):
     pr_created = False  # Flag to track if a PR was created
+    repositories_with_pr = []  # List to store repositories that need PR creation
+
     for root, dirs, _ in os.walk(base_path):
         for d in dirs:
             repo_path = os.path.join(root, d)
@@ -92,20 +94,25 @@ def find_and_create_pr(base_path):
                     print(f"\nNo new commits to push for {repo_path}. Skipping PR creation.")
                     continue  # No new commits, silently skip
 
-                # Check for open pull requests
-                process = subprocess.run(["gh", "pr", "status"], capture_output=True, text=True)
-                if "no open pull requests" in process.stdout.lower():
-                    try:
-                        # Create a new pull request
-                        create_pr_process = subprocess.run(["gh", "pr", "create", "--base", base_branch, "--head", current_branch, "--fill"], capture_output=True, text=True)
-                        if create_pr_process.returncode == 0:
-                            print(f"\nPull request created successfully in {repo_path}.")
-                            print(create_pr_process.stdout)
-                            pr_created = True  # Mark that a PR was created
-                        else:
-                            print(f"\nFailed to create pull request in {repo_path}. Error: {create_pr_process.stderr}")
-                    except subprocess.CalledProcessError as e:
-                        print(f"\nError while creating pull request in {repo_path}: {e}")
+                # Add to the list of repositories needing a PR
+                repositories_with_pr.append(repo_path)
+
+    if repositories_with_pr:
+        for repo in repositories_with_pr:
+            print(f"\nPR Creation needed for repository: {repo}")
+            try:
+                # Create a new pull request if no PR is already open
+                create_pr_process = subprocess.run(
+                    ["gh", "pr", "create", "--base", base_branch, "--head", current_branch, "--fill"],
+                    capture_output=True, text=True
+                )
+                if create_pr_process.returncode == 0:
+                    print(f"Pull request created successfully in {repo}.")
+                    pr_created = True
+                else:
+                    print(f"Failed to create pull request in {repo}. Error: {create_pr_process.stderr}")
+            except subprocess.CalledProcessError as e:
+                print(f"Error while creating pull request in {repo}: {e}")
 
     if not pr_created:
         print("\nNo repositories had changes that required a pull request.")
