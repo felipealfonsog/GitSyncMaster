@@ -71,8 +71,11 @@ def find_and_create_pr(base_path):
                     print(f"\nFailed to determine the current branch in {repo_path}. Skipping repository.")
                     continue
 
+                # Determine the default base branch (e.g., main or master)
+                base_branch_result = subprocess.run(["git", "remote", "show", "origin"], capture_output=True, text=True)
+                base_branch = "main" if "HEAD branch: main" in base_branch_result.stdout else "master"
+
                 # Check for differences with the base branch
-                base_branch = "main"  # Default base branch
                 diff_result = subprocess.run(["git", "log", f"origin/{base_branch}..{current_branch}"], capture_output=True, text=True)
                 if not diff_result.stdout.strip():
                     continue  # No new commits, silently skip
