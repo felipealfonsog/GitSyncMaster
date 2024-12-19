@@ -29,11 +29,18 @@ def print_header():
     """)
 
 def print_credits():
+    print("_" * 50)
+    print(" " * 15 + "CREDITS" + " " * 15)
+    print("-" * 50)
+    print("-" * 50)
     print("By Computer Science Engineer Felipe Alfonso González")
     print("GitHub: https://github.com/felipealfonsog/")
     print("LinkedIn: https://www.linkedin.com/in/felipealfonso/")
     print("Twitter: https://twitter.com/felipealfonsog/")
-    print("License: BSD 3-Clause License\n")
+    print("License: BSD 3-Clause License")
+    print("-" * 50)
+    print("_" * 50)
+
 
 def check_repositories(base_path, exclude_suffix="-aur"):
     for root, dirs, _ in os.walk(base_path):
