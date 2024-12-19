@@ -88,8 +88,7 @@ def update_repositories(base_path):
                     print(f"Failed to update repository. Error: {process.stderr}\n")
 
 
-import os
-import subprocess
+
 
 def find_and_create_pr(base_path):
     pr_created = False  # Flag to track if a PR was created
