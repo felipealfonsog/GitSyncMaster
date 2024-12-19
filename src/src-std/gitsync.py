@@ -89,39 +89,14 @@ def update_repositories(base_path):
 
 
 def create_and_merge_pr(repo_path):
+    # Navigate to the repository directory
     os.chdir(repo_path)
 
-    current_branch_result = subprocess.run(["git", "branch", "--show-current"], capture_output=True, text=True)
-    current_branch = current_branch_result.stdout.strip()
+    # Create the PR
+    subprocess.run(["gh", "pr", "create", "--base", "master", "--head", "your-branch-name", "--title", "PR Title", "--body", "PR Description"])
 
-    if not current_branch:
-        print(f"Error getting the current branch in {repo_path}.")
-        return
-
-    print(f"Creating PR from {current_branch} to master in {repo_path}...")
-
-    create_pr_result = subprocess.run(
-        ["gh", "pr", "create", "--base", "master", "--head", current_branch, "--fill"],
-        capture_output=True, text=True
-    )
-
-    if create_pr_result.returncode != 0:
-        print(f"Error creating the PR: {create_pr_result.stderr}")
-        return
-
-    pr_number = create_pr_result.stdout.split()[0]
-    print(f"PR created successfully with number: {pr_number}")
-
-    merge_pr_result = subprocess.run(
-        ["gh", "pr", "merge", pr_number, "--merge"],
-        capture_output=True, text=True
-    )
-
-    if merge_pr_result.returncode != 0:
-        print(f"Error merging the PR: {merge_pr_result.stderr}")
-        return
-
-    print(f"PR #{pr_number} successfully merged into master.")
+    # Merge the PR
+    subprocess.run(["gh", "pr", "merge", "your-branch-name", "--merge"])
 
 
 
