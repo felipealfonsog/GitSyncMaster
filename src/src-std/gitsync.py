@@ -81,7 +81,6 @@ def update_repositories(base_path):
                     print(f"Failed to update repository. Error: {process.stderr}\n")
 
 
-
 def find_and_create_pr(base_path):
     pr_created = False  # Flag to track if a PR was created
     repos_missing_commits = []  # Track repos that require commits before PR creation
@@ -147,25 +146,36 @@ def find_and_create_pr(base_path):
                 if diff_result.stdout.strip():
                     print(f"New commits detected in {repo_path}. Proceeding to create PR.")
                     
-                    # Create a new pull request using the GitHub CLI (gh)
-                    try:
-                        create_pr_process = subprocess.run(
-                            ["gh", "pr", "create", "--base", default_branch, "--head", current_branch, "--fill"],
-                            capture_output=True, text=True
-                        )
-                        if create_pr_process.returncode == 0:
-                            # Extract PR details like number and URL
-                            pr_number = create_pr_process.stdout.split()[0]
-                            pr_url = create_pr_process.stdout.split()[1] if len(create_pr_process.stdout.split()) > 1 else "No URL"
-                            print(f"Pull request successfully created for {repo_path}. PR #{pr_number}. URL: {pr_url}")
-                            pr_created = True
-                            break  # Only show the first repo with changes for PR creation
-                        else:
-                            print(f"Failed to create pull request in {repo_path}. Error: {create_pr_process.stderr}")
+                    # Check if the PR already exists using GitHub API (gh)
+                    pr_check_result = subprocess.run(
+                        ["gh", "pr", "list", "--head", current_branch, "--state", "open"],
+                        capture_output=True, text=True
+                    )
+                    
+                    if pr_check_result.returncode == 0 and pr_check_result.stdout.strip():
+                        # PR exists, show details
+                        pr_url = pr_check_result.stdout.strip().split("\n")[0].split()[1]
+                        pr_number = pr_check_result.stdout.strip().split("\n")[0].split()[0]
+                        print(f"PR already exists for {repo_path}: {pr_url} (PR #{pr_number})")
+                    else:
+                        # Create a new PR
+                        try:
+                            create_pr_process = subprocess.run(
+                                ["gh", "pr", "create", "--base", default_branch, "--head", current_branch, "--fill"],
+                                capture_output=True, text=True
+                            )
+                            if create_pr_process.returncode == 0:
+                                pr_number = create_pr_process.stdout.split()[0]
+                                pr_url = create_pr_process.stdout.split()[1] if len(create_pr_process.stdout.split()) > 1 else "No URL"
+                                print(f"Pull request successfully created for {repo_path}. PR #{pr_number}. URL: {pr_url}")
+                                pr_created = True
+                                break  # Only show the first repo with changes for PR creation
+                            else:
+                                print(f"Failed to create pull request in {repo_path}. Error: {create_pr_process.stderr}")
+                                break  # Exit after the first failed attempt
+                        except subprocess.CalledProcessError as e:
+                            print(f"Error while creating pull request in {repo_path}: {e}")
                             break  # Exit after the first failed attempt
-                    except subprocess.CalledProcessError as e:
-                        print(f"Error while creating pull request in {repo_path}: {e}")
-                        break  # Exit after the first failed attempt
                 else:
                     print(f"No new commits detected for {repo_path} between {current_branch} and origin/{default_branch}. Skipping PR creation.")
 
@@ -183,6 +193,7 @@ def find_and_create_pr(base_path):
         print("\nNo pull requests were created. Check the repository status for possible issues.")
     else:
         print("\nPull request was created for the repository with changes.")
+
 
 
 
