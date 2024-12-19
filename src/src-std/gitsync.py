@@ -177,6 +177,7 @@ def find_and_create_pr(base_path):
                                 print(f"Pull request successfully created for {repo_path}. PR #{pr_number}. URL: {pr_url}")
 
                                 # After creating the PR, merge it automatically
+                                print(f"Attempting to merge PR #{pr_number} into {default_branch}...")
                                 merge_pr_process = subprocess.run(
                                     ["gh", "pr", "merge", pr_number, "--merge", "--auto"],
                                     capture_output=True, text=True
@@ -210,6 +211,7 @@ def find_and_create_pr(base_path):
         print("\nNo pull requests were created. Check the repository status for possible issues.")
     else:
         print("\nPull request was created for the repository with changes.")
+
 
 
 
