@@ -89,15 +89,16 @@ def update_repositories(base_path):
 
 
 
+
 def find_and_create_pr(base_path):
     pr_created = False  # Flag to track if a PR was created
     pr_number = None  # Store the PR number to merge it later
+    repos_missing_commits = []  # Track repos that require commits before PR creation
 
-    # Loop through all repositories in the provided base path
     for root, dirs, _ in os.walk(base_path):
         for d in dirs:
             repo_path = os.path.join(root, d)
-            if os.path.isdir(os.path.join(repo_path, ".git")):  # Check if it's a git repo
+            if os.path.isdir(os.path.join(repo_path, ".git")):
                 print(f"\nChecking repository: {repo_path}")
                 os.chdir(repo_path)
 
@@ -122,20 +123,40 @@ def find_and_create_pr(base_path):
 
                 print(f"Fetching updates for {repo_path}...")
 
-                # Check for uncommitted changes in the current branch
-                log_result = subprocess.run(
-                    ["git", "log", f"origin/{current_branch}..{current_branch}", "--oneline"],
-                    capture_output=True, text=True
+                # Check if the repository uses 'main' or 'master' as the default branch
+                default_branch_result = subprocess.run(
+                    ["git", "remote", "show", "origin"], capture_output=True, text=True
                 )
-                if log_result.returncode != 0:
-                    print(f"Error checking commits in {repo_path}. Error: {log_result.stderr}")
+                if default_branch_result.returncode != 0:
+                    print(f"Failed to get the default branch for {repo_path}. Skipping.")
+                    continue
+                
+                # Extract the default branch name (main or master)
+                default_branch = None
+                for line in default_branch_result.stdout.splitlines():
+                    if "HEAD branch" in line:
+                        default_branch = line.split(":")[1].strip()
+                        break
+
+                if not default_branch:
+                    print(f"Could not determine the default branch for {repo_path}. Skipping.")
                     continue
 
-                # If there are new commits, proceed to create a PR
-                if log_result.stdout.strip():
+                print(f"Default branch: {default_branch}")
+
+                # Check for differences between local and remote branch using git diff
+                diff_result = subprocess.run(
+                    ["git", "diff", f"origin/{default_branch}..{current_branch}"],
+                    capture_output=True, text=True
+                )
+                if diff_result.returncode != 0:
+                    print(f"Error comparing branches in {repo_path}. Error: {diff_result.stderr}")
+                    continue
+
+                if diff_result.stdout.strip():
                     print(f"New commits detected in {repo_path}. Proceeding to create PR.")
                     
-                    # Check if the PR already exists using GitHub CLI (gh)
+                    # Check if the PR already exists using GitHub API (gh)
                     pr_check_result = subprocess.run(
                         ["gh", "pr", "list", "--head", current_branch, "--state", "open"],
                         capture_output=True, text=True
@@ -149,50 +170,50 @@ def find_and_create_pr(base_path):
                         
                         # Attempt to merge PR using git directly (alternative approach)
                         if pr_number:
-                            print(f"Attempting to merge PR #{pr_number} into {current_branch} using git...")
+                            print(f"Attempting to merge PR #{pr_number} into {default_branch} using git...")
                             
-                            # Checkout the current branch (already assumed to be the feature branch)
+                            # Checkout the default branch (main or master)
                             checkout_result = subprocess.run(
-                                ["git", "checkout", current_branch],
+                                ["git", "checkout", default_branch],
                                 capture_output=True, text=True
                             )
                             if checkout_result.returncode != 0:
-                                print(f"Failed to checkout the branch ({current_branch}). Error: {checkout_result.stderr}")
+                                print(f"Failed to checkout the default branch ({default_branch}). Error: {checkout_result.stderr}")
                                 continue
                             
-                            # Pull the latest updates from the remote feature branch
+                            # Pull the latest updates from the remote default branch
                             pull_result = subprocess.run(
-                                ["git", "pull", "origin", current_branch],
+                                ["git", "pull", "origin", default_branch],
                                 capture_output=True, text=True
                             )
                             if pull_result.returncode != 0:
-                                print(f"Failed to pull the latest updates from {current_branch}. Error: {pull_result.stderr}")
+                                print(f"Failed to pull the latest updates from {default_branch}. Error: {pull_result.stderr}")
                                 continue
                             
-                            # Merge the feature branch into the current branch
+                            # Merge the feature branch into the default branch
                             merge_result = subprocess.run(
                                 ["git", "merge", current_branch],
                                 capture_output=True, text=True
                             )
                             if merge_result.returncode != 0:
-                                print(f"Failed to merge {current_branch} into {current_branch}. Error: {merge_result.stderr}")
+                                print(f"Failed to merge {current_branch} into {default_branch}. Error: {merge_result.stderr}")
                                 continue
                             
                             # Push the merged changes to the remote repository
                             push_result = subprocess.run(
-                                ["git", "push", "origin", current_branch],
+                                ["git", "push", "origin", default_branch],
                                 capture_output=True, text=True
                             )
                             if push_result.returncode == 0:
-                                print(f"Successfully merged and pushed changes to {current_branch}.")
+                                print(f"Successfully merged and pushed changes to {default_branch}.")
                             else:
-                                print(f"Failed to push changes to {current_branch}. Error: {push_result.stderr}")
+                                print(f"Failed to push changes to {default_branch}. Error: {push_result.stderr}")
                                 continue
                     else:
                         # Create a new PR if none exists
                         try:
                             create_pr_process = subprocess.run(
-                                ["gh", "pr", "create", "--base", "main", "--head", current_branch, "--fill"],
+                                ["gh", "pr", "create", "--base", default_branch, "--head", current_branch, "--fill"],
                                 capture_output=True, text=True
                             )
                             if create_pr_process.returncode == 0:
@@ -203,23 +224,23 @@ def find_and_create_pr(base_path):
                                 
                                 # Ensure pr_number is valid before merging
                                 if pr_number:
-                                    print(f"Attempting to merge PR #{pr_number} into main...")
+                                    print(f"Attempting to merge PR #{pr_number} into {default_branch}...")
 
                                     # Merge PR using git directly
                                     checkout_result = subprocess.run(
-                                        ["git", "checkout", "main"],
+                                        ["git", "checkout", default_branch],
                                         capture_output=True, text=True
                                     )
                                     if checkout_result.returncode != 0:
-                                        print(f"Failed to checkout the main branch. Error: {checkout_result.stderr}")
+                                        print(f"Failed to checkout the default branch ({default_branch}). Error: {checkout_result.stderr}")
                                         continue
                                     
                                     pull_result = subprocess.run(
-                                        ["git", "pull", "origin", "main"],
+                                        ["git", "pull", "origin", default_branch],
                                         capture_output=True, text=True
                                     )
                                     if pull_result.returncode != 0:
-                                        print(f"Failed to pull the latest updates from main. Error: {pull_result.stderr}")
+                                        print(f"Failed to pull the latest updates from {default_branch}. Error: {pull_result.stderr}")
                                         continue
                                     
                                     merge_result = subprocess.run(
@@ -227,17 +248,17 @@ def find_and_create_pr(base_path):
                                         capture_output=True, text=True
                                     )
                                     if merge_result.returncode != 0:
-                                        print(f"Failed to merge {current_branch} into main. Error: {merge_result.stderr}")
+                                        print(f"Failed to merge {current_branch} into {default_branch}. Error: {merge_result.stderr}")
                                         continue
                                     
                                     push_result = subprocess.run(
-                                        ["git", "push", "origin", "main"],
+                                        ["git", "push", "origin", default_branch],
                                         capture_output=True, text=True
                                     )
                                     if push_result.returncode == 0:
-                                        print(f"Successfully merged and pushed changes to main.")
+                                        print(f"Successfully merged and pushed changes to {default_branch}.")
                                     else:
-                                        print(f"Failed to push changes to main. Error: {push_result.stderr}")
+                                        print(f"Failed to push changes to {default_branch}. Error: {push_result.stderr}")
                                 else:
                                     print(f"Invalid PR number: {pr_number}. Merge skipped.")
                                 break  # Exit after the PR is created and merged
@@ -248,9 +269,23 @@ def find_and_create_pr(base_path):
                             print(f"Error while creating pull request in {repo_path}: {e}")
                             break  # Exit after the first failed attempt
                 else:
-                    print(f"No new commits detected for {repo_path}. Skipping PR creation.")
+                    print(f"No new commits detected for {repo_path} between {current_branch} and origin/{default_branch}. Skipping PR creation.")
 
-    return pr_created
+                # Handle repos that require a commit before PR
+                if not diff_result.stdout.strip():
+                    repos_missing_commits.append(repo_path)
+
+    # Output missing commit repositories
+    if repos_missing_commits:
+        print("\nThe following repositories require commits before creating a PR:")
+        for repo in repos_missing_commits:
+            print(f"- {repo}")
+    
+    if not pr_created:
+        print("\nNo pull requests were created. Check the repository status for possible issues.")
+    else:
+        print("\nPull request was created and attempted to merge successfully.")
+
 
 
 
