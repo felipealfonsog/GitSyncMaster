@@ -75,8 +75,7 @@ def find_and_create_pr(base_path):
                 base_branch = "main"  # Default base branch
                 diff_result = subprocess.run(["git", "log", f"origin/{base_branch}..{current_branch}"], capture_output=True, text=True)
                 if not diff_result.stdout.strip():
-                    print(f"\nNo new commits to create a pull request in {repo_path}. Skipping repository.")
-                    continue
+                    continue  # No new commits, silently skip
 
                 # Check for open pull requests
                 process = subprocess.run(["gh", "pr", "status"], capture_output=True, text=True)
