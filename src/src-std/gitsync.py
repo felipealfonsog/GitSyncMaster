@@ -88,16 +88,21 @@ def find_and_create_pr(base_path):
                     print(f"\nFailed to determine the base branch in {repo_path}. Skipping repository.")
                     continue
 
+                # First, ensure the branch is up-to-date with the remote repository
+                pull_result = subprocess.run(["git", "pull", "origin", current_branch], capture_output=True, text=True)
+                if pull_result.returncode != 0:
+                    print(f"Failed to pull updates for {repo_path}. Error: {pull_result.stderr}")
+                    continue  # Skip creating PR if pull failed
+
                 # Push any local changes to the remote
                 push_result = subprocess.run(["git", "push", "origin", current_branch], capture_output=True, text=True)
                 if push_result.returncode != 0:
                     print(f"Failed to push changes to {repo_path}. Error: {push_result.stderr}")
-                    continue  # Skip creating a PR if push failed
+                    continue  # Skip creating PR if push failed
 
                 # Now we ensure we have differences between local and remote branches
                 diff_result = subprocess.run(["git", "log", f"origin/{base_branch}..{current_branch}"], capture_output=True, text=True)
                 if not diff_result.stdout.strip():
-                    print(f"\nNo new commits to push for {repo_path}. Skipping PR creation.")
                     continue  # No new commits, silently skip
 
                 # Add to the list of repositories needing a PR
@@ -124,6 +129,7 @@ def find_and_create_pr(base_path):
         print("\nNo repositories had changes that required a pull request.")
     else:
         print("\nPull requests were created for the repositories with changes.")
+
 
 
 
