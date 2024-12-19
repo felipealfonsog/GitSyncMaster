@@ -90,7 +90,6 @@ def update_repositories(base_path):
 
 
 
-
 def find_and_create_pr(base_path):
     pr_created = False  # Flag to track if a PR was created
     pr_number = None  # Store the PR number to merge it later
@@ -169,23 +168,47 @@ def find_and_create_pr(base_path):
                         pr_number = pr_check_result.stdout.strip().split("\n")[0].split()[0]
                         print(f"PR already exists for {repo_path}: {pr_url} (PR #{pr_number})")
                         
-                        # Check if pr_number is valid before attempting the merge
+                        # Attempt to merge PR using git directly (alternative approach)
                         if pr_number:
-                            print(f"Attempting to merge PR #{pr_number} into {default_branch}...")
-
-                            # Attempt to merge the PR
-                            merge_pr_process = subprocess.run(
-                                ["gh", "pr", "merge", pr_number, "--merge", "--auto"],
+                            print(f"Attempting to merge PR #{pr_number} into {default_branch} using git...")
+                            
+                            # Checkout the default branch (main or master)
+                            checkout_result = subprocess.run(
+                                ["git", "checkout", default_branch],
                                 capture_output=True, text=True
                             )
+                            if checkout_result.returncode != 0:
+                                print(f"Failed to checkout the default branch ({default_branch}). Error: {checkout_result.stderr}")
+                                continue
                             
-                            if merge_pr_process.returncode == 0:
-                                print(f"PR #{pr_number} successfully merged into {default_branch}.")
+                            # Pull the latest updates from the remote default branch
+                            pull_result = subprocess.run(
+                                ["git", "pull", "origin", default_branch],
+                                capture_output=True, text=True
+                            )
+                            if pull_result.returncode != 0:
+                                print(f"Failed to pull the latest updates from {default_branch}. Error: {pull_result.stderr}")
+                                continue
+                            
+                            # Merge the feature branch into the default branch
+                            merge_result = subprocess.run(
+                                ["git", "merge", current_branch],
+                                capture_output=True, text=True
+                            )
+                            if merge_result.returncode != 0:
+                                print(f"Failed to merge {current_branch} into {default_branch}. Error: {merge_result.stderr}")
+                                continue
+                            
+                            # Push the merged changes to the remote repository
+                            push_result = subprocess.run(
+                                ["git", "push", "origin", default_branch],
+                                capture_output=True, text=True
+                            )
+                            if push_result.returncode == 0:
+                                print(f"Successfully merged and pushed changes to {default_branch}.")
                             else:
-                                print(f"Failed to merge PR #{pr_number}. Error: {merge_pr_process.stderr}")
-                                if "GraphQL: Pull request Protected branch rules not configured" in merge_pr_process.stderr:
-                                    print("It seems the branch is protected. Please check the branch protection rules.")
-                            break  # Exit after attempting the merge
+                                print(f"Failed to push changes to {default_branch}. Error: {push_result.stderr}")
+                                continue
                     else:
                         # Create a new PR if none exists
                         try:
@@ -203,17 +226,39 @@ def find_and_create_pr(base_path):
                                 if pr_number:
                                     print(f"Attempting to merge PR #{pr_number} into {default_branch}...")
 
-                                    merge_pr_process = subprocess.run(
-                                        ["gh", "pr", "merge", pr_number, "--merge", "--auto"],
+                                    # Merge PR using git directly
+                                    checkout_result = subprocess.run(
+                                        ["git", "checkout", default_branch],
                                         capture_output=True, text=True
                                     )
+                                    if checkout_result.returncode != 0:
+                                        print(f"Failed to checkout the default branch ({default_branch}). Error: {checkout_result.stderr}")
+                                        continue
                                     
-                                    if merge_pr_process.returncode == 0:
-                                        print(f"PR #{pr_number} successfully merged into {default_branch}.")
+                                    pull_result = subprocess.run(
+                                        ["git", "pull", "origin", default_branch],
+                                        capture_output=True, text=True
+                                    )
+                                    if pull_result.returncode != 0:
+                                        print(f"Failed to pull the latest updates from {default_branch}. Error: {pull_result.stderr}")
+                                        continue
+                                    
+                                    merge_result = subprocess.run(
+                                        ["git", "merge", current_branch],
+                                        capture_output=True, text=True
+                                    )
+                                    if merge_result.returncode != 0:
+                                        print(f"Failed to merge {current_branch} into {default_branch}. Error: {merge_result.stderr}")
+                                        continue
+                                    
+                                    push_result = subprocess.run(
+                                        ["git", "push", "origin", default_branch],
+                                        capture_output=True, text=True
+                                    )
+                                    if push_result.returncode == 0:
+                                        print(f"Successfully merged and pushed changes to {default_branch}.")
                                     else:
-                                        print(f"Failed to merge PR #{pr_number}. Error: {merge_pr_process.stderr}")
-                                        if "GraphQL: Pull request Protected branch rules not configured" in merge_pr_process.stderr:
-                                            print("It seems the branch is protected. Please check the branch protection rules.")
+                                        print(f"Failed to push changes to {default_branch}. Error: {push_result.stderr}")
                                 else:
                                     print(f"Invalid PR number: {pr_number}. Merge skipped.")
                                 break  # Exit after the PR is created and merged
