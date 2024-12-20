@@ -1,6 +1,8 @@
 #!/bin/bash
 
 # Automatically detect the base directory from where the script is executed
+# ./auto_list_branches.sh > branches_list.txt
+
 base_dir=$(pwd)
 
 echo "Searching for repositories in the base directory: $base_dir"
